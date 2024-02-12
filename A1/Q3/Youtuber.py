@@ -37,7 +37,6 @@ class Youtuber:
         # Register Youtuber with the YouTube server
         request_data = {
             "youtuber": self.youtuber_name,
-            "action": "register"
         }
 
         self.channel.basic_publish(exchange='',
