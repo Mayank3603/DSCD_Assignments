@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+message SellerInfo {
+  string address = 1;
+  string uuid = 2;
+}
+
+message Response {
+  enum Status {
+    FAILED = 0;
+    SUCCESS = 1;
+  } 
+  Status status = 1;
+}
+
+enum Category {
+  ELECTRONICS = 0;
+  FASHION = 1;
+  OTHERS = 2;
+  ANY = 3;
+}
+
+message ItemDetails {
+  string product_name = 1;
+  Category category = 2;
+  int32 quantity = 3;
+  string description = 4;
+  string seller_address = 5;
+  float price_per_unit = 6;
+  string seller_uuid = 7;
+  string rating = 8;
+}
+
+message ItemResponse {
+  enum Status {
+    FAILED = 0;
+    SUCCESS = 1;
+  }
+  Status status = 1;
+  string item_id = 2;
+}
+
+message UpdateItemRequest {
+  string item_id = 1;
+  float new_price = 2;
+  int32 new_quantity = 3;
+  string seller_address = 4;
+  string seller_uuid = 5;
+}
+
+message UpdateItemResponse {
+  enum Status {
+    FAILED = 0;
+    SUCCESS = 1;
+  }
+  Status status = 1;
+  string item_id = 6;
+  float new_price = 2;
+  int32 new_quantity = 3;
+  string seller_address = 4;
+  string seller_uuid = 5;
+}
+
+message DeleteItemRequest {
+  string item_id = 1;
+  string seller_address = 2;
+  string seller_uuid = 3;
+}
+
+message DeleteItemResponse {
+  enum Status {
+    FAILED = 0;
+    SUCCESS = 1;
+  }
+  Status status = 1;
+  string item_id = 4;
+  string seller_address = 2;
+  string seller_uuid = 3;
+}
+
+message DisplayItemsRequest {
+  string seller_address = 1;
+  string seller_uuid = 2;
+}
+
+message DisplayItemsResponse {
+  string product_name = 1;
+  string category_name = 2;
+  int32 quantity = 3;
+  string description = 4;
+  string seller_address = 5;
+  float price_per_unit = 6;
+  string seller_uuid = 7;
+  string rating = 8;
+}
+
+service MarketService {
+  rpc RegisterSeller(SellerInfo) returns (Response);
+  rpc SellItem(ItemDetails) returns (ItemResponse);
+  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse);
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
+  rpc DisplaySellerItems(DisplayItemsRequest) returns (DisplayItemsResponse);
+}
