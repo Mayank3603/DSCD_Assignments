@@ -21,8 +21,8 @@ class Items(_message.Message):
     description: str
     seller_address: str
     price_per_unit: float
-    rating: str
-    def __init__(self, item_id: _Optional[str] = ..., product_name: _Optional[str] = ..., category: _Optional[str] = ..., quantity: _Optional[int] = ..., description: _Optional[str] = ..., seller_address: _Optional[str] = ..., price_per_unit: _Optional[float] = ..., rating: _Optional[str] = ...) -> None: ...
+    rating: float
+    def __init__(self, item_id: _Optional[str] = ..., product_name: _Optional[str] = ..., category: _Optional[str] = ..., quantity: _Optional[int] = ..., description: _Optional[str] = ..., seller_address: _Optional[str] = ..., price_per_unit: _Optional[float] = ..., rating: _Optional[float] = ...) -> None: ...
 
 class ItemsResponse(_message.Message):
     __slots__ = ("message",)

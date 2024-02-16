@@ -45,8 +45,8 @@ class ItemDetails(_message.Message):
     seller_address: str
     price_per_unit: float
     seller_uuid: str
-    rating: str
-    def __init__(self, item_id: _Optional[str] = ..., product_name: _Optional[str] = ..., category: _Optional[str] = ..., quantity: _Optional[int] = ..., description: _Optional[str] = ..., seller_address: _Optional[str] = ..., price_per_unit: _Optional[float] = ..., seller_uuid: _Optional[str] = ..., rating: _Optional[str] = ...) -> None: ...
+    rating: float
+    def __init__(self, item_id: _Optional[str] = ..., product_name: _Optional[str] = ..., category: _Optional[str] = ..., quantity: _Optional[int] = ..., description: _Optional[str] = ..., seller_address: _Optional[str] = ..., price_per_unit: _Optional[float] = ..., seller_uuid: _Optional[str] = ..., rating: _Optional[float] = ...) -> None: ...
 
 class ItemResponse(_message.Message):
     __slots__ = ("status", "item_id")

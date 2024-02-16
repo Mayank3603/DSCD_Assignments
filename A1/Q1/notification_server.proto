@@ -8,7 +8,7 @@ message Items{
   string description = 5;
   string seller_address = 6;
   float price_per_unit = 7;
-  string rating = 8;
+  float rating = 8;
 }
 
 message ItemsResponse {

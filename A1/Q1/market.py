@@ -71,7 +71,8 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
 
         item_id = str(len(self.items) + 1)
 
-        self.items.append(Item(item_id, request.product_name, request.category, request.quantity, request.description, seller_address, request.price_per_unit, seller_uuid, request.rating))
+
+        self.items.append(Item(item_id, request.product_name, request.category, request.quantity, request.description, seller_address, request.price_per_unit, seller_uuid,0.0))
 
         print(f"Sell Item request from {seller_address}[ip:port]")
 
@@ -235,7 +236,10 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
     def RateItem(self, request, context):
         for item in self.items:
             if item.id == request.item_id:
-                item.rating = request.rating
+                if(item.rating == 0):
+                    item.rating = request.rating
+                else:
+                    item.rating = (item.rating + request.rating) / 2
                 print(f"{request.buyer_address}[ip:port] rated {item.id} with {request.rating} stars.")
                 return proto.RateItemResponse(status=proto.RateItemResponse.Status.SUCCESS)
         

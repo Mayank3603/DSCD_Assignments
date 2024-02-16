@@ -23,8 +23,8 @@ message ItemDetails {
   string seller_address = 6;
   float price_per_unit = 7;
   string seller_uuid = 8;
-  string rating = 9;
-}4
+  float rating = 9;
+}
 
 message ItemResponse {
   enum Status {

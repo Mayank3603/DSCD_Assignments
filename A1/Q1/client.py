@@ -16,7 +16,16 @@ stub = market_pb2_grpc.MarketServiceStub(channel)
 def search_item(item_name,item_category):
     request = proto.SearchItemRequest(item_name=item_name, item_category=item_category)
     response = stub.SearchItem(request)
-    print(response)
+    for item in response.items:
+        print(f"Item Id: {item.item_id}")
+        print(f"Item Name: {item.product_name}")
+        print(f"Item Category: {item.category}")
+        print(f"Item Quantity: {item.quantity}")
+        print(f"Item Description: {item.description}")
+        print(f"Item Price Per Unit: {item.price_per_unit}")
+        print(f"Seller Address: {item.seller_address}")
+        print(f"Rating: {item.rating}")
+        print("----------------------------------------------------")
     
 
 def buy_item(item_id, quantity, buyer_address):
