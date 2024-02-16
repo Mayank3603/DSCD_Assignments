@@ -6,7 +6,12 @@ import notification_server_pb2_grpc
 import notification_server_pb2
 
 wishlist={}
-
+market_ip = "localhost"
+market_port = 50053
+seller_ip = "localhost"
+seller_port = 50054
+buyer_ip = "localhost"
+buyer_port = 50055
 
 class Item:
     def __init__(self, id, product_name, category, quantity, description, seller_address, price_per_unit, seller_uuid, rating):
@@ -170,7 +175,7 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
         item_id = request.item_id
         quantity = request.quantity 
 
-        channel = grpc.insecure_channel('localhost:50055')
+        channel = grpc.insecure_channel(seller_ip + ':' + str(seller_port))
         stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
         for item in self.items:
             if item.id == item_id:
@@ -180,9 +185,6 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
                     # notify_seller(item)
                     success = True
                     message = f"SUCCESS: {quantity} units of {item_id} bought from {item.seller_address}."
-
-
-                    # Call the gRPC method using the stub
                     response = stub.ReceiveNotification(notification_server_pb2.Items(
                         item_id=item_id,
                         product_name=item.product_name,
@@ -197,21 +199,21 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
                 else:
                     success = False
                     message = f"FAILED: {quantity} units of {item_id} not available from {item.seller_address}."
-                    return proto.BuyResponse(status=proto.RateItemResponse.Status.FAILED, message=message)
-        print(f"Buy Item request from {buyer_address}[ip:port]: {message}")
+                    return proto.BuyResponse(status=proto.BuyResponse.Status.FAILED, message=message)
+        print(f"Buy Item request from {buyer_address}[ip:port] {message}")
         return proto.BuyResponse(status=proto.RateItemResponse.Status.SUCCESS)
 
     def AddToWishlist(self, request, context):
-        pass
-        #Buyers can subscribe to some items using this function to receive notifications. 
-        # The request must contain the item ID and the buyer's address where the notification server is hosted.
+        buyer_address = request.buyer_address
+        item_id = request.item_id
 
-        # if request.item_id in wishlist:
-        #     wishlist[request.item_id].append(request.buyer_address)
-        # else:
-        #     wishlist[request.item_id]=[request.buyer_address]
-        # print(f"{request.buyer_address}[ip:port] added {request.item_id} to wishlist.")
-        # return proto.AddToWishlistResponse(status=proto.AddToWishlistResponse.Status.SUCCESS)
+        if buyer_address not in wishlist:
+            wishlist[buyer_address] = []
+
+        wishlist[buyer_address].append(item_id)
+
+        print(f"{buyer_address}[ip:port] added {item_id} to wishlist.")
+        return proto.WishlistResponse(status=proto.WishlistResponse.Status.SUCCESS)
 
 
     def RateItem(self, request, context):
@@ -229,9 +231,9 @@ def serve():
     market_service = MarketServiceImplementation()
     market_pb2_grpc.add_MarketServiceServicer_to_server(market_service, server)
     # market_buyer_pb2_grpc.add_BuyerServiceServicer_to_server(market_service, server)
-    server.add_insecure_port('[::]:50053')
+    server.add_insecure_port(market_ip + ':' + str(market_port))
     server.start()
-    print("Market server started. Listening on port 50053.")
+    print("Market server started. Listening on port " + str(market_port) + " ...")
     server.wait_for_termination()
 
 

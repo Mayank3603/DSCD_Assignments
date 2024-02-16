@@ -5,7 +5,11 @@ import notification_server_pb2
 import notification_server_pb2_grpc
 from concurrent import futures
 
-channel = grpc.insecure_channel('localhost:50053')
+market_ip = "localhost"
+market_port = 50053
+notification_ip = "localhost"
+notification_port = 50055
+channel = grpc.insecure_channel(market_ip + ':' + str(market_port))
 stub = market_pb2_grpc.MarketServiceStub(channel)
 
 
@@ -23,12 +27,14 @@ def buy_item(item_id, quantity, buyer_address):
     )
 
     response = stub.BuyItem(request)
+
     print(response)
 
     if response.status == proto.BuyResponse.Status.SUCCESS:
         print(f"SUCCESS")
     else:
         print(f"FAIL")
+
 
 def add_to_wishlist(item_id="", buyer_address=""):
     request = proto.AddToWishlistRequest(item_id=item_id, buyer_address=buyer_address)
@@ -56,9 +62,9 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     notification_server_service = NotificationServiceServicer()
     notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
-    server.add_insecure_port('[::]:50054')
+    server.add_insecure_port(notification_ip + ':' + str(notification_port))
     server.start()
-    print("Client server started. Listening on port 50054.")
+    print("Client server started. Listening on port " + str(notification_port))
 
 
 if __name__ == "__main__":
@@ -78,15 +84,17 @@ if __name__ == "__main__":
         elif choice == 2:
             item_id = input("Enter item id: ")
             quantity = int(input("Enter quantity: "))
-            buyer_address = input("Enter buyer address: ")
+            buyer_address = notification_ip + ':' + str(notification_port)
+
             buy_item(item_id, quantity, buyer_address)
+ 
         elif choice == 3:
             item_id = input("Enter item id: ")
-            buyer_address = input("Enter buyer address: ")
+            buyer_address = notification_ip + ':' + str(notification_port)
             add_to_wishlist(item_id, buyer_address)
         elif choice == 4:
             item_id = input("Enter item id: ")
-            buyer_address = input("Enter buyer address: ")
+            buyer_address = notification_ip + ':' + str(notification_port)
             rating = int(input("Enter rating: "))
             rate_item(item_id, buyer_address, rating)
         elif choice == 5:
