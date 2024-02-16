@@ -1,9 +1,12 @@
 import grpc
 from concurrent import futures
-import market_seller_pb2 as seller_proto
-import market_seller_pb2_grpc
-# import market_buyer_pb2 as buyer_proto
-# import market_buyer_pb2_grpc
+import market_pb2 as proto
+import market_pb2_grpc
+import notification_server_pb2_grpc
+import notification_server_pb2
+
+wishlist={}
+
 
 class Item:
     def __init__(self, id, product_name, category, quantity, description, seller_address, price_per_unit, seller_uuid, rating):
@@ -35,7 +38,7 @@ class Seller:
     def get_product(self, product_id):
         return self.product_list[product_id]
 
-class MarketServiceImplementation(market_seller_pb2_grpc.MarketServiceServicer):
+class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
     def __init__(self):
         self.sellers = {}
         self.items = []
@@ -45,8 +48,8 @@ class MarketServiceImplementation(market_seller_pb2_grpc.MarketServiceServicer):
         uuid = request.uuid
         if address in self.sellers:
             print(f"Seller join request from {address}[ip:port], uuid = {uuid}: FAILED")
-            return seller_proto.Response(status=seller_proto.Response.Status.FAILED)
-        resp=seller_proto.Response(status=seller_proto.Response.Status.SUCCESS)
+            return proto.SellerResponse(status=proto.SellerResponse.Status.FAILED)
+        resp=proto.SellerResponse(status=proto.SellerResponse.Status.SUCCESS)
 
         self.sellers[address] = uuid
         print(f"Seller join request from {address}[ip:port], uuid = {uuid}")
@@ -59,7 +62,7 @@ class MarketServiceImplementation(market_seller_pb2_grpc.MarketServiceServicer):
 
         if seller_address not in self.sellers or self.sellers[seller_address] != seller_uuid:
             print(f"Sell Item request from {seller_address}[ip:port]: FAILED (Invalid Seller)")
-            return seller_proto.ItemResponse(status=seller_proto.Response.Status.FAILED)
+            return proto.ItemResponse(status=proto.ItemResponse.Status.FAILED)
 
         item_id = str(len(self.items) + 1)
 
@@ -68,7 +71,7 @@ class MarketServiceImplementation(market_seller_pb2_grpc.MarketServiceServicer):
         print(f"Sell Item request from {seller_address}[ip:port]")
 
 
-        return seller_proto.ItemResponse(status=seller_proto.Response.Status.SUCCESS, item_id=item_id)
+        return proto.ItemResponse(status=proto.ItemResponse.Status.SUCCESS, item_id=item_id)
 
     def UpdateItem(self, request, context):
         seller_address = request.seller_address
@@ -76,7 +79,7 @@ class MarketServiceImplementation(market_seller_pb2_grpc.MarketServiceServicer):
 
         if seller_address not in self.sellers or self.sellers[seller_address] != seller_uuid:
             print(f"Update Item request from {seller_address}[ip:port]: FAILED")
-            return seller_proto.UpdateItemResponse(status=seller_proto.UpdateItemResponse.Status.FAILED)
+            return proto.UpdateItemResponse(status=proto.UpdateItemResponse.Status.FAILED)
 
         for item in self.items:
             if item.id== request.item_id:
@@ -84,40 +87,41 @@ class MarketServiceImplementation(market_seller_pb2_grpc.MarketServiceServicer):
                 item.quantity = request.new_quantity
 
                 print(f"Update Item request from {seller_address}[ip:port]")
+                # notify_customers(item)
  
-                return seller_proto.UpdateItemResponse(status=seller_proto.UpdateItemResponse.Status.SUCCESS)
+                return proto.UpdateItemResponse(status=proto.UpdateItemResponse.Status.SUCCESS)
 
-        return seller_proto.UpdateItemResponse(status=seller_proto.UpdateItemResponse.Status.FAILED)
+        return proto.UpdateItemResponse(status=proto.UpdateItemResponse.Status.FAILED)
+
 
     def DeleteItem(self, request, context):
         seller_address = request.seller_address
         seller_uuid = request.seller_uuid
 
         if seller_address not in self.sellers or self.sellers[seller_address] != seller_uuid:
-            return seller_proto.Response(status=seller_proto.Response.Status.FAILED)
+            return proto.DeleteItemResponse(status=proto.DeleteItemResponse.Status.FAILED)
 
         for item in self.items:
-            if item['item_id'] == request.item_id:
+            if item.id == request.item_id:
                 self.items.remove(item)
                 print(f"Delete Item request from {seller_address}[ip:port]")
-                # print(f"Seller prints: {seller_proto.Response.Status.SUCCESS}")
-                return seller_proto.Response(status=seller_proto.Response.Status.SUCCESS)
+                return proto.DeleteItemResponse(status=proto.DeleteItemResponse.Status.SUCCESS)
 
-        return seller_proto.Response(status=seller_proto.Response.Status.FAILED)
+        return proto.DeleteItemResponse(status=proto.DeleteItemResponse.Status.FAILED)
 
     def DisplaySellerItems(self, request, context):
         seller_address = request.seller_address
         seller_uuid = request.seller_uuid
-
         if seller_address not in self.sellers or self.sellers[seller_address] != seller_uuid:
             print(f"Display Seller Items request from {seller_address}[ip:port]: FAILED (Invalid Seller)")
-            return seller_proto.ItemsResponse(status=seller_proto.Response.Status.FAILED)
+            return proto.DisplayItemsResponse(status=proto.DisplayItemsResponse.Status.FAILED)
+
+        items_response = []
 
         for item in self.items:
-
             if item.seller_address == seller_address:
-                print("2")
-                response = seller_proto.ItemDetails(
+                item_detail = proto.ItemDetails(
+                    item_id=item.id,
                     product_name=item.product_name,
                     category=item.category,
                     quantity=item.quantity,
@@ -128,14 +132,102 @@ class MarketServiceImplementation(market_seller_pb2_grpc.MarketServiceServicer):
                     rating=item.rating
                 )
 
+                items_response.append(item_detail)
 
         print(f"Display Seller Items request from {seller_address}[ip:port]")
-        return seller_proto.DisplayItemsResponse(items=[response])
+        
+        return proto.DisplayItemsResponse(items=items_response)
+
+    def SearchItem(self, request, context):
+        items_response = []
+        try:
+            if request.item_name != "" and any(item.product_name == request.item_name for item in self.items):
+                for item in self.items:
+                    if request.item_name.lower() in item.product_name.lower() and (request.item_category == item.category):
+                        item_detail = proto.ItemDetails(
+                            item_id=item.id,
+                            product_name=item.product_name,
+                            category=item.category,
+                            quantity=item.quantity,
+                            description=item.description,
+                            seller_address=item.seller_address,
+                            price_per_unit=item.price_per_unit,
+                            rating=item.rating
+                        )
+
+                        items_response.append(item_detail)
+
+                print(f"Search Item request for {request.item_name} from {context.peer()}")
+                return proto.SearchItemResponse(items=items_response)
+            else:
+                print(f"Search Item request for {request.item_name} from {context.peer()}: FAILED")
+                return proto.SearchItemResponse(items=items_response)
+        except:
+            print(f"Search Item request for {request.item_name} from {context.peer()}: FAILED")
+
+    def BuyItem(self, request, context):
+        buyer_address = request.buyer_address
+        item_id = request.item_id
+        quantity = request.quantity 
+
+        channel = grpc.insecure_channel('localhost:50055')
+        stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
+        for item in self.items:
+            if item.id == item_id:
+                if item.quantity >= quantity:
+                    item.quantity -= quantity
+                    print(f"{buyer_address}[ip:port] bought {quantity} units of {item_id} from {item.seller_address}.")
+                    # notify_seller(item)
+                    success = True
+                    message = f"SUCCESS: {quantity} units of {item_id} bought from {item.seller_address}."
+
+
+                    # Call the gRPC method using the stub
+                    response = stub.ReceiveNotification(notification_server_pb2.Items(
+                        item_id=item_id,
+                        product_name=item.product_name,
+                        category=item.category, 
+                        quantity=quantity,
+                        description=item.description,
+                        seller_address=item.seller_address,
+                        price_per_unit=item.price_per_unit,
+                        rating=item.rating  
+                    ))                 
+
+                else:
+                    success = False
+                    message = f"FAILED: {quantity} units of {item_id} not available from {item.seller_address}."
+                    return proto.BuyResponse(status=proto.RateItemResponse.Status.FAILED, message=message)
+        print(f"Buy Item request from {buyer_address}[ip:port]: {message}")
+        return proto.BuyResponse(status=proto.RateItemResponse.Status.SUCCESS)
+
+    def AddToWishlist(self, request, context):
+        pass
+        #Buyers can subscribe to some items using this function to receive notifications. 
+        # The request must contain the item ID and the buyer's address where the notification server is hosted.
+
+        # if request.item_id in wishlist:
+        #     wishlist[request.item_id].append(request.buyer_address)
+        # else:
+        #     wishlist[request.item_id]=[request.buyer_address]
+        # print(f"{request.buyer_address}[ip:port] added {request.item_id} to wishlist.")
+        # return proto.AddToWishlistResponse(status=proto.AddToWishlistResponse.Status.SUCCESS)
+
+
+    def RateItem(self, request, context):
+        for item in self.items:
+            if item.id == request.item_id:
+                item.rating = request.rating
+                print(f"{request.buyer_address}[ip:port] rated {item.id} with {request.rating} stars.")
+                return proto.RateItemResponse(status=proto.RateItemResponse.Status.SUCCESS)
+        
+        return proto.RateItemResponse(status=proto.RateItemResponse.Status.FAILED)
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     market_service = MarketServiceImplementation()
-    market_seller_pb2_grpc.add_MarketServiceServicer_to_server(market_service, server)
+    market_pb2_grpc.add_MarketServiceServicer_to_server(market_service, server)
     # market_buyer_pb2_grpc.add_BuyerServiceServicer_to_server(market_service, server)
     server.add_insecure_port('[::]:50053')
     server.start()
