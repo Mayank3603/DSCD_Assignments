@@ -93,7 +93,6 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
                 item.quantity = request.new_quantity
                 try:
                     for buyer in wishlist[item.id]:
-                        print(buyer)
                         channel = grpc.insecure_channel(buyer)
                         stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
 
@@ -217,12 +216,13 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
                         seller_address=item.seller_address,
                         price_per_unit=item.price_per_unit,
                         rating=item.rating  
-                    ))                 
+                    ))               
 
                 else:
                     success = False
                     message = f"FAILED: {quantity} units of {item_id} not available from {item.seller_address}."
-                    return proto.BuyResponse(status=proto.BuyResponse.Status.FAILED, message=message)
+                    print(message)
+                    return proto.BuyResponse(status=proto.BuyResponse.Status.FAILED)
         print(f"Buy Item request from {buyer_address}[ip:port] {message}")
         return proto.BuyResponse(status=proto.RateItemResponse.Status.SUCCESS)
 
