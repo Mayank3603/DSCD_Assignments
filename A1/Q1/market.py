@@ -91,6 +91,21 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
                 item.price_per_unit = request.new_price
                 item.quantity = request.new_quantity
 
+                channel = grpc.insecure_channel('localhost:50055')
+                stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
+
+                message = f"SUCCESS: {item.quantity} units of {item.id} bought from {item.seller_address}."
+                response = stub.ReceiveNotification(notification_server_pb2.Items(
+                        item_id=item.id,
+                        product_name=item.product_name,
+                        category=item.category, 
+                        quantity=item.quantity,
+                        description=item.description,
+                        seller_address=item.seller_address,
+                        price_per_unit=item.price_per_unit,
+                        rating=item.rating  
+                ))     
+
                 print(f"Update Item request from {seller_address}[ip:port]")
                 # notify_customers(item)
  
@@ -175,8 +190,6 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
         item_id = request.item_id
         quantity = request.quantity 
 
-        channel = grpc.insecure_channel(seller_ip + ':' + str(seller_port))
-        stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
         for item in self.items:
             if item.id == item_id:
                 if item.quantity >= quantity:
@@ -184,12 +197,15 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
                     print(f"{buyer_address}[ip:port] bought {quantity} units of {item_id} from {item.seller_address}.")
                     # notify_seller(item)
                     success = True
+                    channel = grpc.insecure_channel('localhost:50054')
+                    stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
+
                     message = f"SUCCESS: {quantity} units of {item_id} bought from {item.seller_address}."
                     response = stub.ReceiveNotification(notification_server_pb2.Items(
-                        item_id=item_id,
+                        item_id=item.id,
                         product_name=item.product_name,
                         category=item.category, 
-                        quantity=quantity,
+                        quantity=item.quantity,
                         description=item.description,
                         seller_address=item.seller_address,
                         price_per_unit=item.price_per_unit,
@@ -203,18 +219,18 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
         print(f"Buy Item request from {buyer_address}[ip:port] {message}")
         return proto.BuyResponse(status=proto.RateItemResponse.Status.SUCCESS)
 
-    def AddToWishlist(self, request, context):
-        buyer_address = request.buyer_address
+    def AddToWishList(self, request, context):
         item_id = request.item_id
+        buyer_address = request.buyer_address
 
-        if buyer_address not in wishlist:
-            wishlist[buyer_address] = []
-
-        wishlist[buyer_address].append(item_id)
+        if item_id not in wishlist:
+            wishlist[item_id] = [buyer_address]
+        else:
+            wishlist[item_id].append(buyer_address)
 
         print(f"{buyer_address}[ip:port] added {item_id} to wishlist.")
-        return proto.WishlistResponse(status=proto.WishlistResponse.Status.SUCCESS)
-
+        return proto.AddToWishListResponse(status=proto.AddToWishListResponse.Status.SUCCESS)
+        
 
     def RateItem(self, request, context):
         for item in self.items:

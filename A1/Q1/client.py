@@ -36,10 +36,10 @@ def buy_item(item_id, quantity, buyer_address):
         print(f"FAIL")
 
 
-def add_to_wishlist(item_id="", buyer_address=""):
-    request = proto.AddToWishlistRequest(item_id=item_id, buyer_address=buyer_address)
-    response = stub.AddToWishlist(request)
-    if response.status == proto.AddToWishlistResponse.Status.SUCCESS:
+def add_to_wishlist(item_id, buyer_address):
+    request = proto.AddToWishListRequest(item_id=item_id, buyer_address=buyer_address)
+    response = stub.AddToWishList(request)
+    if response.status == proto.AddToWishListResponse.Status.SUCCESS:
         print(f"SUCCESS")
     else:
         print(f"FAIL")
@@ -55,21 +55,27 @@ def rate_item(item_id, buyer_address, rating):
 
 class NotificationServiceServicer(notification_server_pb2_grpc.NotificationServiceServicer):
     def ReceiveNotification(self, response, context):
-        print(response)
-
-
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    notification_server_service = NotificationServiceServicer()
-    notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
-    server.add_insecure_port(notification_ip + ':' + str(notification_port))
-    server.start()
-    print("Client server started. Listening on port " + str(notification_port))
+        print("Item Id:"+response.item_id+" is sold")
+        print("Item Name:"+response.product_name+" is sold")
+        print("Item Category:"+response.category+" is sold")
+        print("Item Quantity:"+str(response.quantity)+" is sold")
+        print("Item Description:"+response.description+" is sold")
+        print("Item Price Per Unit:"+str(response.price_per_unit)+" is sold")
+        print("Seller Address:"+response.seller_address+" is sold")
+        print("Rating:"+str(response.rating)+" is sold")
+        # return notification_server_pb2.ItemsResponse(status=notification_server_pb2.NotificationResponse.Status.SUCCESS)
+        return notification_server_pb2.ItemsResponse(message="SUCCESS")
 
 
 if __name__ == "__main__":
 
-    serve()
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    notification_server_service = NotificationServiceServicer()
+    notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
+    server.add_insecure_port('localhost:50055')
+    server.start()
+    print("Client server started. Listening on port " + str(notification_port))
+
     while(True):
         print("1. Search Item")
         print("2. Buy Item")
@@ -101,4 +107,3 @@ if __name__ == "__main__":
             break
         else:
             print("Invalid choice")
-

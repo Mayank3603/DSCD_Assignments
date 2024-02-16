@@ -24,7 +24,7 @@ message ItemDetails {
   float price_per_unit = 7;
   string seller_uuid = 8;
   string rating = 9;
-}
+}4
 
 message ItemResponse {
   enum Status {

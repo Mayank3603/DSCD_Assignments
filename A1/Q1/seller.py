@@ -18,13 +18,7 @@ channel = grpc.insecure_channel(market_ip + ':' + str(market_port) )
 stub = market_pb2_grpc.MarketServiceStub(channel)
 
 
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    notification_server_service = NotificationServiceServicer()
-    notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
-    server.add_insecure_port(f'[::]:{notification_port}')
-    server.start()
-    print("Seller server started. Listening on port"+ str(notification_port))
+
 
 def register_seller(address, uuid):
 
@@ -110,13 +104,27 @@ def display_seller_items(seller_address, seller_uuid):
 
 class NotificationServiceServicer(notification_server_pb2_grpc.NotificationServiceServicer):
     def ReceiveNotification(self, response, context):
-        print(response)
+        print("Item Id:"+response.item_id+" is sold")
+        print("Item Name:"+response.product_name+" is sold")
+        print("Item Category:"+response.category+" is sold")
+        print("Item Quantity:"+str(response.quantity)+" is sold")
+        print("Item Description:"+response.description+" is sold")
+        print("Item Price Per Unit:"+str(response.price_per_unit)+" is sold")
+        print("Seller Address:"+response.seller_address+" is sold")
+        print("Rating:"+str(response.rating)+" is sold")
+        # return notification_server_pb2.ItemsResponse(status=notification_server_pb2.NotificationResponse.Status.SUCCESS)
+        return notification_server_pb2.ItemsResponse(message="SUCCESS")
 
 
 
 if __name__ == "__main__":
 
-    serve()
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    notification_server_service = NotificationServiceServicer()
+    notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
+    server.add_insecure_port('localhost:50054')
+    server.start()
+    print("Seller server started. Listening on port"+ str(notification_port))
     
     while(True):
 
