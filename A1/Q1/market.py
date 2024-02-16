@@ -91,23 +91,29 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
             if item.id== request.item_id:
                 item.price_per_unit = request.new_price
                 item.quantity = request.new_quantity
+                try:
+                    for buyer in wishlist[item.id]:
+                        print(buyer)
+                        channel = grpc.insecure_channel(buyer)
+                        stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
 
-                channel = grpc.insecure_channel('localhost:50055')
-                stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
+                        message = f"SUCCESS: {item.quantity} units of {item.id} bought from {item.seller_address}."
+                        response = stub.ReceiveNotification(notification_server_pb2.Items(
+                                item_id=item.id,
+                                product_name=item.product_name,
+                                category=item.category, 
+                                quantity=item.quantity,
+                                description=item.description,
+                                seller_address=item.seller_address,
+                                price_per_unit=item.price_per_unit,
+                                rating=item.rating  
+                        )) 
+                    print(f"Update Item request from {seller_address}[ip:port]")
+                except:
+                    print(f"Update Item request from {seller_address}[ip:port]")
+                    pass    
 
-                message = f"SUCCESS: {item.quantity} units of {item.id} bought from {item.seller_address}."
-                response = stub.ReceiveNotification(notification_server_pb2.Items(
-                        item_id=item.id,
-                        product_name=item.product_name,
-                        category=item.category, 
-                        quantity=item.quantity,
-                        description=item.description,
-                        seller_address=item.seller_address,
-                        price_per_unit=item.price_per_unit,
-                        rating=item.rating  
-                ))     
-
-                print(f"Update Item request from {seller_address}[ip:port]")
+               
                 # notify_customers(item)
  
                 return proto.UpdateItemResponse(status=proto.UpdateItemResponse.Status.SUCCESS)
@@ -198,7 +204,7 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
                     print(f"{buyer_address}[ip:port] bought {quantity} units of {item_id} from {item.seller_address}.")
                     # notify_seller(item)
                     success = True
-                    channel = grpc.insecure_channel('localhost:50054')
+                    channel = grpc.insecure_channel(item.seller_address)
                     stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
 
                     message = f"SUCCESS: {quantity} units of {item_id} bought from {item.seller_address}."
@@ -246,16 +252,15 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
         return proto.RateItemResponse(status=proto.RateItemResponse.Status.FAILED)
 
 
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    market_service = MarketServiceImplementation()
-    market_pb2_grpc.add_MarketServiceServicer_to_server(market_service, server)
-    # market_buyer_pb2_grpc.add_BuyerServiceServicer_to_server(market_service, server)
-    server.add_insecure_port(market_ip + ':' + str(market_port))
-    server.start()
-    print("Market server started. Listening on port " + str(market_port) + " ...")
-    server.wait_for_termination()
-
-
 if __name__ == '__main__':
-    serve()
+    try:
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        market_service = MarketServiceImplementation()
+        market_pb2_grpc.add_MarketServiceServicer_to_server(market_service, server)
+        server.add_insecure_port(market_ip + ':' + str(market_port))
+        server.start()
+        print("Market server started. Listening on port " + str(market_port) + " ...")
+        server.wait_for_termination()
+    except :
+        pass
+
