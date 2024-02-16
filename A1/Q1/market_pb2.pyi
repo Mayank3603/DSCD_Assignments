@@ -6,19 +6,6 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class Category(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-    __slots__ = ()
-    DEFAULT: _ClassVar[Category]
-    ELECTRONICS: _ClassVar[Category]
-    FASHION: _ClassVar[Category]
-    OTHERS: _ClassVar[Category]
-    ANY: _ClassVar[Category]
-DEFAULT: Category
-ELECTRONICS: Category
-FASHION: Category
-OTHERS: Category
-ANY: Category
-
 class SellerInfo(_message.Message):
     __slots__ = ("address", "uuid")
     ADDRESS_FIELD_NUMBER: _ClassVar[int]
@@ -52,14 +39,14 @@ class ItemDetails(_message.Message):
     RATING_FIELD_NUMBER: _ClassVar[int]
     item_id: str
     product_name: str
-    category: Category
+    category: str
     quantity: int
     description: str
     seller_address: str
     price_per_unit: float
     seller_uuid: str
     rating: str
-    def __init__(self, item_id: _Optional[str] = ..., product_name: _Optional[str] = ..., category: _Optional[_Union[Category, str]] = ..., quantity: _Optional[int] = ..., description: _Optional[str] = ..., seller_address: _Optional[str] = ..., price_per_unit: _Optional[float] = ..., seller_uuid: _Optional[str] = ..., rating: _Optional[str] = ...) -> None: ...
+    def __init__(self, item_id: _Optional[str] = ..., product_name: _Optional[str] = ..., category: _Optional[str] = ..., quantity: _Optional[int] = ..., description: _Optional[str] = ..., seller_address: _Optional[str] = ..., price_per_unit: _Optional[float] = ..., seller_uuid: _Optional[str] = ..., rating: _Optional[str] = ...) -> None: ...
 
 class ItemResponse(_message.Message):
     __slots__ = ("status", "item_id")
@@ -166,8 +153,8 @@ class SearchItemRequest(_message.Message):
     ITEM_NAME_FIELD_NUMBER: _ClassVar[int]
     ITEM_CATEGORY_FIELD_NUMBER: _ClassVar[int]
     item_name: str
-    item_category: Category
-    def __init__(self, item_name: _Optional[str] = ..., item_category: _Optional[_Union[Category, str]] = ...) -> None: ...
+    item_category: str
+    def __init__(self, item_name: _Optional[str] = ..., item_category: _Optional[str] = ...) -> None: ...
 
 class SearchItemResponse(_message.Message):
     __slots__ = ("status", "items")

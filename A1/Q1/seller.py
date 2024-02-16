@@ -2,6 +2,10 @@ import grpc
 import market_pb2 as proto
 import market_pb2_grpc
 
+import notification_server_pb2
+import notification_server_pb2_grpc
+from concurrent import futures
+
 def register_seller(address, uuid):
     channel = grpc.insecure_channel('localhost:50053')
     stub = market_pb2_grpc.MarketServiceStub(channel)
@@ -91,18 +95,51 @@ def display_seller_items(seller_address, seller_uuid):
         details = e.details()
         print(f"RPC Error: Status Code - {status_code}, Details - {details}")
 
+class NotificationServiceServicer(notification_server_pb2_grpc.NotificationServiceServicer):
+    def ReceiveNotification(self, response, context):
+        print(response)
+
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    notification_server_service = NotificationServiceServicer()
+    notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
+    server.add_insecure_port('[::]:50055')
+    server.start()
+    print("Seller server started. Listening on port 50055.")
 
 
-if __name__ == '__main__':
-    seller_address = "192.13.188.178:50053"
+if __name__ == "__main__":
+
+    serve()
+    seller_address = "localhost:50055"
     seller_uuid = "987a515c-a6e5-11ed-906b-76aef1e817c5"
-
     register_seller(seller_address, seller_uuid)
-    sell_item(seller_address, seller_uuid, "Laptop", "ELECTRONICS", 10, "High-performance laptop", 1200.00)
-    update_item(seller_address, seller_uuid, "1", 8, 1300.00)
-    # delete_item(seller_address, seller_uuid, "Laptop987a515c-a6e5-11ed-906b-76aef1e817c5")
-    display_seller_items(seller_address, seller_uuid)
-#     seller1()
-#     print("Seller prints: SUCCESS")
-#     print("Seller prints: FAIL")
-#     print("yyyyyyyyyyy")
+
+    while(True):
+        print("1. Sell Item")
+        print("2. Update Item")
+        print("3. Delete Item")
+        print("4. Display Seller Items")
+        print("5. Exit")
+        choice = int(input("Enter choice: "))
+        if choice == 1:
+            product_name = input("Enter product name: ")
+            category = input("Enter category: ")
+            quantity = int(input("Enter quantity: "))
+            description = input("Enter description: ")
+            price_per_unit = float(input("Enter price per unit: "))
+            sell_item(seller_address, seller_uuid, product_name, category, quantity, description, price_per_unit)
+        elif choice == 2:
+            item_id = input("Enter item id: ")
+            quantity = int(input("Enter quantity: "))
+            price_per_unit = float(input("Enter price per unit: "))
+            update_item(seller_address, seller_uuid, item_id, quantity, price_per_unit)
+        elif choice == 3:
+            item_id = input("Enter item id: ")
+            delete_item(seller_address, seller_uuid, item_id)
+        elif choice == 4:
+            display_seller_items(seller_address, seller_uuid)
+        elif choice == 5:
+            break
+        else:
+            print("Invalid choice")

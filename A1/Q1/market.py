@@ -2,8 +2,11 @@ import grpc
 from concurrent import futures
 import market_pb2 as proto
 import market_pb2_grpc
+import notification_server_pb2_grpc
+import notification_server_pb2
 
 wishlist={}
+
 
 class Item:
     def __init__(self, id, product_name, category, quantity, description, seller_address, price_per_unit, seller_uuid, rating):
@@ -99,10 +102,9 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
             return proto.DeleteItemResponse(status=proto.DeleteItemResponse.Status.FAILED)
 
         for item in self.items:
-            if item['item_id'] == request.item_id:
+            if item.id == request.item_id:
                 self.items.remove(item)
                 print(f"Delete Item request from {seller_address}[ip:port]")
-                # print(f"Seller prints: {proto.Response.Status.SUCCESS}")
                 return proto.DeleteItemResponse(status=proto.DeleteItemResponse.Status.SUCCESS)
 
         return proto.DeleteItemResponse(status=proto.DeleteItemResponse.Status.FAILED)
@@ -138,40 +140,66 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
 
     def SearchItem(self, request, context):
         items_response = []
-        print(self.items)
-        if request.item_name != "" and any(item.product_name == request.item_name for item in self.items):
-            for item in self.items:
-                if request.item_name.lower() in item.product_name.lower() and (request.item_category == proto.Category.ANY or request.item_category == item.category):
-                    item_detail = proto.ItemDetails(
-                        item_id=item.id,
-                        product_name=item.product_name,
-                        category=item.category,
-                        quantity=item.quantity,
-                        description=item.description,
-                        seller_address=item.seller_address,
-                        price_per_unit=item.price_per_unit,
-                        rating=item.rating
-                    )
+        try:
+            if request.item_name != "" and any(item.product_name == request.item_name for item in self.items):
+                for item in self.items:
+                    if request.item_name.lower() in item.product_name.lower() and (request.item_category == item.category):
+                        item_detail = proto.ItemDetails(
+                            item_id=item.id,
+                            product_name=item.product_name,
+                            category=item.category,
+                            quantity=item.quantity,
+                            description=item.description,
+                            seller_address=item.seller_address,
+                            price_per_unit=item.price_per_unit,
+                            rating=item.rating
+                        )
 
-                    items_response.append(item_detail)
+                        items_response.append(item_detail)
 
-            print(f"Search Item request for {request.item_name} from {context.peer()}")
-            return proto.SearchItemResponse(items=items_response)
-        else:
+                print(f"Search Item request for {request.item_name} from {context.peer()}")
+                return proto.SearchItemResponse(items=items_response)
+            else:
+                print(f"Search Item request for {request.item_name} from {context.peer()}: FAILED")
+                return proto.SearchItemResponse(items=items_response)
+        except:
             print(f"Search Item request for {request.item_name} from {context.peer()}: FAILED")
-            return proto.SearchItemResponse(items=items_response)
 
     def BuyItem(self, request, context):
         buyer_address = request.buyer_address
         item_id = request.item_id
-        quantity = request.quantity
+        quantity = request.quantity 
 
-        # Implement your logic for buying the item
-        # Assume you have a function like 'buy_item' that returns a success message
-        success, message = buy_item(buyer_address, item_id, quantity)
+        channel = grpc.insecure_channel('localhost:50055')
+        stub = notification_server_pb2_grpc.NotificationServiceStub(channel)
+        for item in self.items:
+            if item.id == item_id:
+                if item.quantity >= quantity:
+                    item.quantity -= quantity
+                    print(f"{buyer_address}[ip:port] bought {quantity} units of {item_id} from {item.seller_address}.")
+                    # notify_seller(item)
+                    success = True
+                    message = f"SUCCESS: {quantity} units of {item_id} bought from {item.seller_address}."
 
-        # Return the response
-        return market_pb2.BuyItemResponse(success=success, message=message)
+
+                    # Call the gRPC method using the stub
+                    response = stub.ReceiveNotification(notification_server_pb2.Items(
+                        item_id=item_id,
+                        product_name=item.product_name,
+                        category=item.category, 
+                        quantity=quantity,
+                        description=item.description,
+                        seller_address=item.seller_address,
+                        price_per_unit=item.price_per_unit,
+                        rating=item.rating  
+                    ))                 
+
+                else:
+                    success = False
+                    message = f"FAILED: {quantity} units of {item_id} not available from {item.seller_address}."
+                    return proto.BuyResponse(status=proto.RateItemResponse.Status.FAILED, message=message)
+        print(f"Buy Item request from {buyer_address}[ip:port]: {message}")
+        return proto.BuyResponse(status=proto.RateItemResponse.Status.SUCCESS)
 
     def AddToWishlist(self, request, context):
         pass

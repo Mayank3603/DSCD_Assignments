@@ -1,13 +1,5 @@
 syntax = "proto3";
 
-enum Category {
-  DEFAULT = 0;
-  ELECTRONICS = 4;
-  FASHION = 1;
-  OTHERS = 2;
-  ANY = 3;
-}
-
 message SellerInfo {
   string address = 1;
   string uuid = 2;
@@ -25,7 +17,7 @@ message SellerResponse {
 message ItemDetails {
   string item_id =1;
   string product_name = 2;
-  Category category = 3;
+  string category = 3;
   int32 quantity = 4;
   string description = 5;
   string seller_address = 6;
@@ -97,7 +89,7 @@ message DisplayItemsResponse {
 
 message SearchItemRequest {
   string item_name = 1;
-  Category item_category = 2;
+  string item_category = 2;
 }
 
 

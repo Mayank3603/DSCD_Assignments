@@ -1,6 +1,9 @@
 import grpc
 import market_pb2 as proto
 import market_pb2_grpc 
+import notification_server_pb2
+import notification_server_pb2_grpc
+from concurrent import futures
 
 channel = grpc.insecure_channel('localhost:50053')
 stub = market_pb2_grpc.MarketServiceStub(channel)
@@ -13,16 +16,16 @@ def search_item(item_name,item_category):
     
 
 def buy_item(item_id, quantity, buyer_address):
-    request = market_pb2.BuyItemRequest(
+    request = proto.BuyRequest(
             buyer_address=buyer_address,
             item_id=item_id,
             quantity=quantity
     )
 
     response = stub.BuyItem(request)
-    print(response.message)
+    print(response)
 
-    if response.status == proto.BuyItemResponse.Status.SUCCESS:
+    if response.status == proto.BuyResponse.Status.SUCCESS:
         print(f"SUCCESS")
     else:
         print(f"FAIL")
@@ -44,9 +47,50 @@ def rate_item(item_id, buyer_address, rating):
     else:
         print(f"FAIL")
 
+class NotificationServiceServicer(notification_server_pb2_grpc.NotificationServiceServicer):
+    def ReceiveNotification(self, response, context):
+        print(response)
+
+
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    notification_server_service = NotificationServiceServicer()
+    notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
+    server.add_insecure_port('[::]:50054')
+    server.start()
+    print("Client server started. Listening on port 50054.")
+
+
 if __name__ == "__main__":
-    # search_item("Laptop", "ELECTRONICS")
-    # buy_item(item_id="1", quantity=2, buyer_address="120.13.188.178:50051")
-    # add_to_wishlist(item_id="3", buyer_address="120.13.188.178:50051")
-    rate_item(item_id="1", buyer_address="120.13.188.178:50051", rating=4)
+
+    serve()
+    while(True):
+        print("1. Search Item")
+        print("2. Buy Item")
+        print("3. Add to Wishlist")
+        print("4. Rate Item")
+        print("5. Exit")
+        choice = int(input("Enter choice: "))
+        if choice == 1:
+            item_name = input("Enter item name: ")
+            item_category = input("Enter item category: ")
+            search_item(item_name, item_category)
+        elif choice == 2:
+            item_id = input("Enter item id: ")
+            quantity = int(input("Enter quantity: "))
+            buyer_address = input("Enter buyer address: ")
+            buy_item(item_id, quantity, buyer_address)
+        elif choice == 3:
+            item_id = input("Enter item id: ")
+            buyer_address = input("Enter buyer address: ")
+            add_to_wishlist(item_id, buyer_address)
+        elif choice == 4:
+            item_id = input("Enter item id: ")
+            buyer_address = input("Enter buyer address: ")
+            rating = int(input("Enter rating: "))
+            rate_item(item_id, buyer_address, rating)
+        elif choice == 5:
+            break
+        else:
+            print("Invalid choice")
 
