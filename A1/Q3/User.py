@@ -10,8 +10,7 @@ class User:
         self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue='user_queue')
-       
-
+    
     def update_subscription(self, youtuber_name, subscribe):
         request_data = {
             "user": self.username,

@@ -87,7 +87,7 @@ class YoutubeServer:
     def subscribe_user(self, username, youtuber_name):
         if youtuber_name not in self.subscriptions:
             self.subscriptions[youtuber_name] = set()
-        print(f"{youtuber_name} has this user in his list {username}")
+       
         self.subscriptions[youtuber_name].add(username)
 
     def unsubscribe_user(self, username, youtuber_name):
