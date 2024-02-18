@@ -4,8 +4,8 @@ import json
 
 class YoutubeServer:
     def __init__(self):
-        self.user_connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-        self.youtuber_connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        self.user_connection = pika.BlockingConnection(pika.ConnectionParameters('0.0.0.0', credentials=pika.PlainCredentials('mayank','joy')))
+        self.youtuber_connection = pika.BlockingConnection(pika.ConnectionParameters('0.0.0.0',credentials=pika.PlainCredentials('mayank','joy')))
         self.user_channel = self.user_connection.channel()
         self.youtuber_channel = self.youtuber_connection.channel()
         
@@ -24,7 +24,8 @@ class YoutubeServer:
             action = request_data.get("subscribe")
             self.user_channel.queue_declare(queue=user_name)
 
-            print(action)
+
+            # print(user_name,youtuber_name,action)
 
             if action == "true":
                 print(f"Received request from {user_name} to subscribe {youtuber_name}")
@@ -36,7 +37,7 @@ class YoutubeServer:
                 print(f"{user_name} subscribed to {youtuber_name}")
             elif action == "false":
                 self.unsubscribe_user(user_name, youtuber_name)
-                print(f"{user_name} unsubscribed from {youtuber_name}")
+              
             ch.basic_ack(delivery_tag = method.delivery_tag)
 
         self.user_channel.basic_consume(queue='user_queue', on_message_callback=callback)
@@ -72,7 +73,7 @@ class YoutubeServer:
         subscribers = self.subscriptions.get(youtuber_name, [])
 
         for username in subscribers:
-            print(username)
+         
             message = f"New video from {youtuber_name} : {video_name}"
             self.publish_to_user_queue(username, message)
 
@@ -80,7 +81,8 @@ class YoutubeServer:
 
     def publish_to_user_queue(self, username, message):
         print(f"Publishing to {username}: {message}")
-        self.user_channel.basic_publish(exchange='',properties=pika.BasicProperties(delivery_mode=2),
+
+        self.user_channel.basic_publish(exchange='',
                                    routing_key=username,
                                    body=message)
 
@@ -99,12 +101,16 @@ class YoutubeServer:
         print("Server stopped.")
         self.user_connection.close()
         self.youtuber_connection.close()
+    
 
 if __name__ == '__main__':
     youtube_server = YoutubeServer()
     try:
         print("Server has been started.")
+        
         threading.Thread(target=youtube_server.consume_user_requests).start()
         youtube_server.consume_youtuber_requests()
     except KeyboardInterrupt:
         youtube_server.stop()
+
+
