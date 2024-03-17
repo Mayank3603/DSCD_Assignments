@@ -4,19 +4,19 @@ import json
 
 class YoutubeServer:
     def __init__(self):
-        self.user_connection = pika.BlockingConnection(pika.ConnectionParameters('0.0.0.0', credentials=pika.PlainCredentials('mayank','joy')))
-        self.youtuber_connection = pika.BlockingConnection(pika.ConnectionParameters('0.0.0.0',credentials=pika.PlainCredentials('mayank','joy')))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters('0.0.0.0', credentials=pika.PlainCredentials('mayank', 'joy')))
+
         self.user_channel = self.user_connection.channel()
-        self.youtuber_channel = self.youtuber_connection.channel()
+      
         
         self.user_channel.queue_declare(queue='user_queue')
-        self.youtuber_channel.queue_declare(queue='youtuber_queue')
+        self.user_channel.queue_declare(queue='youtuber_queue')
 
         self.uploaded_videos = set()
         self.subscriptions = {}
 
-    def consume_user_requests(self):
-        def callback(ch, method, properties, body):
+    def consume_user_requests(self,ch,method,properties,body):
+     
            
             request_data = json.loads(body.decode())
             user_name = request_data.get("user")
@@ -40,12 +40,11 @@ class YoutubeServer:
               
             ch.basic_ack(delivery_tag = method.delivery_tag)
 
-        self.user_channel.basic_consume(queue='user_queue', on_message_callback=callback)
-        print("Waiting for user requests.")
-        self.user_channel.start_consuming()
+            print("Waiting for user requests.")
+        
 
-    def consume_youtuber_requests(self):
-        def callback(ch, method, properties, body):
+    def consume_youtuber_requests(self,ch,method,properties,body):
+       
         
             request_data = json.loads(body.decode())
             youtuber_name = request_data.get("youtuber")
@@ -65,9 +64,7 @@ class YoutubeServer:
                     print("Same video has been uploaded")
             ch.basic_ack(delivery_tag = method.delivery_tag)
 
-        self.youtuber_channel.basic_consume(queue='youtuber_queue', on_message_callback=callback)
-        print("Waiting for Video to be uploaded")
-        self.youtuber_channel.start_consuming()
+            print("Waiting for Video to be uploaded")
 
     def notify_users(self, youtuber_name, video_name):
         subscribers = self.subscriptions.get(youtuber_name, [])
@@ -101,16 +98,20 @@ class YoutubeServer:
         print("Server stopped.")
         self.user_connection.close()
         self.youtuber_connection.close()
-    
+
 
 if __name__ == '__main__':
+
     youtube_server = YoutubeServer()
-    try:
-        print("Server has been started.")
+
+    youtube_server.user_channel.basic_consume(queue='user_queue', on_message_callback=youtube_server.consume_user_requests)
+    youtube_server.user_channel.basic_consume(queue='youtuber_queue', on_message_callback=youtube_server.consume_youtuber_requests)
+    youtube_server.user_channel.start_consuming()
+
+  
         
-        threading.Thread(target=youtube_server.consume_user_requests).start()
-        youtube_server.consume_youtuber_requests()
-    except KeyboardInterrupt:
-        youtube_server.stop()
+    #     threading.Thread(target=youtube_server.consume_user_requests).start()
+    #     youtube_server.consume_youtuber_requests()
 
-
+    
+ 
