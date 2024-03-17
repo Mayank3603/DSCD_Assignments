@@ -5,12 +5,14 @@ import notification_server_pb2
 import notification_server_pb2_grpc
 from concurrent import futures
 import sys
-market_ip = "localhost"
+market_ip = "35.226.255.197"
 market_port = 50053
 
-notification_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost"
-notification_port = int(sys.argv[2]) if len(sys.argv) > 2 else 50055
+notification_ip = "34.172.91.179"
+# notification_port = 50055
 
+# notification_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost"
+notification_port = int(sys.argv[1]) if len(sys.argv) > 1 else 50055
 
 
 channel = grpc.insecure_channel(market_ip + ':' + str(market_port) )
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     notification_server_service = NotificationServiceServicer()
     notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
-    server.add_insecure_port('localhost:'+str(notification_port) )
+    server.add_insecure_port('[::]:' + str(notification_port))
     server.start()
     print("Client server started. Listening on port " + str(notification_port))
 

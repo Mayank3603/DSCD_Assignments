@@ -8,11 +8,15 @@ from concurrent import futures
 import uuid
 import sys
 
-market_ip = "localhost"
+market_ip = "34.131.214.246"
 market_port = 50053
 
-notification_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost"
-notification_port = int(sys.argv[2]) if len(sys.argv) > 2 else 50054
+# notification_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost"
+# notification_port = int(sys.argv[2]) if len(sys.argv) > 2 else 50054
+
+
+notification_ip = "34.131.79.18"
+notification_port = 50061
 
 seller_uuid = str(uuid.uuid1())
 

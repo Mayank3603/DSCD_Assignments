@@ -8,10 +8,15 @@ import notification_server_pb2
 wishlist={}
 market_ip = "localhost"
 market_port = 50053
-seller_ip = "localhost"
-seller_port = 50054
-buyer_ip = "localhost"
-buyer_port = 50055
+
+
+# market_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost/"
+# market_port = int(sys.argv[2]) if len(sys.argv) > 2 else 50053
+
+# seller_ip = "34.131.79.18"
+# seller_port = 50054
+# buyer_ip = "34.131.8.241"
+# buyer_port = 50055
 
 class Item:
     def __init__(self, id, product_name, category, quantity, description, seller_address, price_per_unit, seller_uuid, rating):
@@ -183,13 +188,13 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
 
                         items_response.append(item_detail)
 
-                print(f"Search Item request for {request.item_name} from {context.peer()}")
+                print(f"Search Item request for {request.item_name} category {request.item_category} SUCCESSFUL")
                 return proto.SearchItemResponse(items=items_response)
             else:
-                print(f"Search Item request for {request.item_name} from {context.peer()}: FAILED")
+                print(f"Search Item request for {request.item_name} category {request.item_category} FAILED")
                 return proto.SearchItemResponse(items=items_response)
         except:
-            print(f"Search Item request for {request.item_name} from {context.peer()}: FAILED")
+            print(f"Search Item request for {request.item_name} category {request.item_category} FAILED")
 
     def BuyItem(self, request, context):
         buyer_address = request.buyer_address
@@ -253,14 +258,15 @@ class MarketServiceImplementation(market_pb2_grpc.MarketServiceServicer):
 
 
 if __name__ == '__main__':
-    try:
+    # try:
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         market_service = MarketServiceImplementation()
         market_pb2_grpc.add_MarketServiceServicer_to_server(market_service, server)
-        server.add_insecure_port(market_ip + ':' + str(market_port))
+        # server.add_insecure_port(market_ip + ':' + str(market_port))
+        server.add_insecure_port('[::]:' + str(market_port))
         server.start()
         print("Market server started. Listening on port " + str(market_port) + " ...")
         server.wait_for_termination()
-    except :
-        pass
+    # except :
+    #     pass
 

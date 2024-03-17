@@ -5,13 +5,14 @@ import notification_server_pb2
 import notification_server_pb2_grpc
 from concurrent import futures
 import sys
-market_ip = "localhost"
+market_ip = "34.131.214.246"
 market_port = 50053
 
-notification_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost"
-notification_port = int(sys.argv[2]) if len(sys.argv) > 2 else 50055
+# notification_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost"
+# notification_port = int(sys.argv[2]) if len(sys.argv) > 2 else 50055
 
-
+notification_ip = "34.131.8.241"
+notification_port = 50056
 
 channel = grpc.insecure_channel(market_ip + ':' + str(market_port) )
 stub = market_pb2_grpc.MarketServiceStub(channel)

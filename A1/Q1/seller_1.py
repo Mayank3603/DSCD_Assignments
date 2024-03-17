@@ -8,11 +8,16 @@ from concurrent import futures
 import uuid
 import sys
 
-market_ip = "localhost"
+market_ip = "35.226.255.197"
 market_port = 50053
 
-notification_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost"
-notification_port = int(sys.argv[2]) if len(sys.argv) > 2 else 50054
+notification_ip = "34.16.117.156"
+# notification_port = 50060
+
+# notification_ip = sys.argv[1] if len(sys.argv) > 1 else "localhost"
+notification_port = int(sys.argv[1]) if len(sys.argv) > 1 else 50054
+
+
 
 seller_uuid = str(uuid.uuid1())
 
@@ -126,7 +131,7 @@ if __name__ == "__main__":
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     notification_server_service = NotificationServiceServicer()
     notification_server_pb2_grpc.add_NotificationServiceServicer_to_server(notification_server_service, server)
-    server.add_insecure_port('localhost:'+str(notification_port))
+    server.add_insecure_port('[::]:' + str(notification_port))
     server.start()
     print("Seller server started. Listening on port"+ str(notification_port))
     
