@@ -1,15 +1,14 @@
 import grpc
 from concurrent import futures
-import client_pb2 as client
-import client_pb2_grpc 
 import node_pb2 as node
 import node_pb2_grpc
+import random
 
-class RaftNodeImplementation(node_grpc.RaftNodeServicer):
+class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
     def __init__(self,node_id):
         self.node_id = node_id
         self.currTerm=0
-        self.log=stack()
+        self.timer=random.randint(150,300)
         self.votedFor=None
         self.currRole="Follower"
         self.votesRecv=0
@@ -47,7 +46,21 @@ class RaftNodeImplementation(node_grpc.RaftNodeServicer):
         self.log[request.prevLogIndex+1:] = request.entries
         return node.AppendEntryResponse(term=self.currTerm, success=True)
 
-    def recover(self):
+    def Recovery(self, request, context):
+        return node.RecoveryResponse(term=self.currTerm, success=True, log=self.log, commitLength=self.commitLength, votedFor=self.votedFor, currRole=self.currRole, currLeader=self.currLeader)
+
+    def handleRequestVote(self, request):
+        response = self.RequestVotes(request)
+        return response
+
+    def handleAppendEntries(self, request):
+        response = self.AppendEntries(request)
+        return response
+
+    def handleRecovery(self, request):
+        response = self.Recovery(request)
+        return response
+    
 
 
 def main():
