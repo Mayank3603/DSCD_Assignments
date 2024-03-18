@@ -24,6 +24,16 @@ class RaftServiceStub(object):
                 request_serializer=node__pb2.RequestVoteRequest.SerializeToString,
                 response_deserializer=node__pb2.RequestVoteResponse.FromString,
                 )
+        self.ServeClient = channel.unary_unary(
+                '/RaftService/ServeClient',
+                request_serializer=node__pb2.ServeClientArgs.SerializeToString,
+                response_deserializer=node__pb2.ServeClientReply.FromString,
+                )
+        self.Recovery = channel.unary_unary(
+                '/RaftService/Recovery',
+                request_serializer=node__pb2.RecoverRequest.SerializeToString,
+                response_deserializer=node__pb2.RecoverReply.FromString,
+                )
 
 
 class RaftServiceServicer(object):
@@ -41,6 +51,18 @@ class RaftServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ServeClient(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Recovery(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RaftServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -53,6 +75,16 @@ def add_RaftServiceServicer_to_server(servicer, server):
                     servicer.RequestVote,
                     request_deserializer=node__pb2.RequestVoteRequest.FromString,
                     response_serializer=node__pb2.RequestVoteResponse.SerializeToString,
+            ),
+            'ServeClient': grpc.unary_unary_rpc_method_handler(
+                    servicer.ServeClient,
+                    request_deserializer=node__pb2.ServeClientArgs.FromString,
+                    response_serializer=node__pb2.ServeClientReply.SerializeToString,
+            ),
+            'Recovery': grpc.unary_unary_rpc_method_handler(
+                    servicer.Recovery,
+                    request_deserializer=node__pb2.RecoverRequest.FromString,
+                    response_serializer=node__pb2.RecoverReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -95,5 +127,39 @@ class RaftService(object):
         return grpc.experimental.unary_unary(request, target, '/RaftService/RequestVote',
             node__pb2.RequestVoteRequest.SerializeToString,
             node__pb2.RequestVoteResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ServeClient(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/RaftService/ServeClient',
+            node__pb2.ServeClientArgs.SerializeToString,
+            node__pb2.ServeClientReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Recovery(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/RaftService/Recovery',
+            node__pb2.RecoverRequest.SerializeToString,
+            node__pb2.RecoverReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -58,3 +58,35 @@ class RequestVoteResponse(_message.Message):
     term: int
     vote_granted: bool
     def __init__(self, term: _Optional[int] = ..., vote_granted: bool = ...) -> None: ...
+
+class ServeClientArgs(_message.Message):
+    __slots__ = ("Request",)
+    REQUEST_FIELD_NUMBER: _ClassVar[int]
+    Request: str
+    def __init__(self, Request: _Optional[str] = ...) -> None: ...
+
+class ServeClientReply(_message.Message):
+    __slots__ = ("Data", "LeaderID", "Success")
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    LEADERID_FIELD_NUMBER: _ClassVar[int]
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    Data: str
+    LeaderID: str
+    Success: bool
+    def __init__(self, Data: _Optional[str] = ..., LeaderID: _Optional[str] = ..., Success: bool = ...) -> None: ...
+
+class RecoverRequest(_message.Message):
+    __slots__ = ("NodeId",)
+    NODEID_FIELD_NUMBER: _ClassVar[int]
+    NodeId: int
+    def __init__(self, NodeId: _Optional[int] = ...) -> None: ...
+
+class RecoverReply(_message.Message):
+    __slots__ = ("commitLength", "term", "NodeId")
+    COMMITLENGTH_FIELD_NUMBER: _ClassVar[int]
+    TERM_FIELD_NUMBER: _ClassVar[int]
+    NODEID_FIELD_NUMBER: _ClassVar[int]
+    commitLength: int
+    term: int
+    NodeId: int
+    def __init__(self, commitLength: _Optional[int] = ..., term: _Optional[int] = ..., NodeId: _Optional[int] = ...) -> None: ...

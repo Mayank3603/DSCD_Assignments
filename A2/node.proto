@@ -33,7 +33,30 @@ message RequestVoteResponse {
   bool vote_granted = 2;
 }
 
+
+message ServeClientArgs {
+  string Request = 1;
+}
+
+message ServeClientReply {
+  string Data = 1;
+  string LeaderID = 2;
+  bool Success = 3;
+}
+
+message RecoverRequest {
+  int32 NodeId = 1;
+}
+
+message RecoverReply {
+  int32 commitLength = 1;
+  int32 term = 2;
+  int32 NodeId = 3;
+}
+
 service RaftService {
   rpc AppendEntries(AppendEntriesRequest) returns (AppendEntriesResponse);
   rpc RequestVote(RequestVoteRequest) returns (RequestVoteResponse);
+  rpc ServeClient (ServeClientArgs) returns (ServeClientReply) {};
+  rpc Recovery(RecoverRequest) returns(RecoverReply) ;
 }

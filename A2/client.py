@@ -9,15 +9,13 @@ class ClientImplementation(client_grpc.ClientServicer):
     def __init__(self):
         self.node = None
 
-    def SetNode(self, request, context):
+    def Set(self, request, context):
         self.node = request
-        return client.Empty()
+        
 
-    def GetNode(self, request, context):
+    def Get(self, request, context):
         return self.node
 
-    def GetNodeStream(self, request, context):
-        yield self.node
 
 def main():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
