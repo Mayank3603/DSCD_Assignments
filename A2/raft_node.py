@@ -5,8 +5,9 @@ import node_pb2_grpc
 import random
 import os
 
+
 class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
-    def __init__(self, node_id):
+    def __init__(self, node_id, port):
         self.node_id = node_id
         self.currTerm = 0
         self.votedFor = None
@@ -16,10 +17,15 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.votesReceived = {}
         self.sentLength = {}
         self.ackedLength = {}
+        self.election_timer = random.randint(5, 10)
+        self.ip = "localhost"
+        self.port = port
 
         self.log_file = f"log_{node_id}.txt"
         self.meta_file = f"meta_data_{node_id}.txt"
         self.init_files()
+
+        self.dump_file = "dump.txt"  # Add dump file
 
     def init_files(self):
         if not os.path.exists(self.log_file):
@@ -31,6 +37,14 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 meta_file.write(f"currTerm: {self.currTerm}\n")
                 meta_file.write(f"votedFor: {self.votedFor}\n")
                 meta_file.write(f"commitLength: {self.commitLength}\n")
+
+    def log_to_dump(self, text):
+        with open(self.dump_file, "a") as dump_file:
+            dump_file.write(text + "\n")
+
+    def print_and_log(self, text):
+        print(text)
+        self.log_to_dump(text)
 
     def recover(self):
         self.init_files()
@@ -93,7 +107,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 self.currLeader = self.nodeId
                 cancel_election_timer()
                 for follower in nodes - {self.nodeId}:
-                    self.sentLength[follower] = len(self.log)
+                    self.sentLength[follower] = len(self.log                )
                     self.ackedLength[follower] = 0
                     replicate_log(self.nodeId, follower)
         elif response.term > self.currTerm:
@@ -112,7 +126,6 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 replicate_log(self.node_id, follower)
         else:
             forward_request_to_leader(msg, self.currLeader)
-
 
     def periodically_replicate_logs(self):
         if self.currRole == "Leader":
@@ -172,13 +185,39 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 deliver(self.log[i].msg)
             self.commitLength = max(ready)
 
+    def get(self, key):
+
+        return "Value for key: {}".format(key)
+
+    def ServeGet(self, request, context):
+        key = request.key
+        value = self.get(key)
+        return node.GetReply(value=value)
+
+    def ServeSet(self, request, context):
+        key = request.key
+        value = request.value
+        self.set(key, value)
+        return node.SetReply(Success="True")
+
+    def set(self, key, value):
+        # Implement logic to set the value associated with the given key
+        
+        pass
+
+    def acks(self, length):
+        # Implement logic to count acknowledgments from nodes
+        pass
+
+
 if __name__ == '__main__':
+
+    node_id = input("Enter the node id: ")
+    port = input("Enter the port number: ")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    node_pb2_grpc.add_RaftServiceServicer_to_server(RaftNodeImplementation(1), server)
+    node_pb2_grpc.add_RaftServiceServicer_to_server(RaftNodeImplementation(node_id, port), server)
     server.add_insecure_port('[::]:50051')
     server.start()
-    print("Raft Node started on port 50051")
+    print("Raft Node Server started on port 50051")
     server.wait_for_termination()
 
-    node = input("Enter the node id: ")
-    RaftNodeImplementation(node)

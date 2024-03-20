@@ -1,26 +1,35 @@
 import grpc
-from concurrent import futures
-import node_pb2 as node
-import node_pb2_grpc 
+import node_pb2
+import node_pb2_grpc
 
-class ClientImplementation(node_pb2_grpc.RaftServiceServicer):
-    def __init__(self):
-        self.node = None
+class RaftClient:
+    def __init__(self, server_address):
+        self.channel = grpc.insecure_channel(server_address)
+        self.stub = node_pb2_grpc.RaftServiceStub(self.channel)
 
-    # def Set(self, request, context):
-    #     self.node = request
-        
+    def serve_get(self, request):
+        response = self.stub.ServeGet(request)
+        return response
 
-    # def Get(self, request, context):
-    #     return self.node
+    def serve_set(self, request):
+        response = self.stub.ServeSet(request)
+        return response
 
+    def recovery(self, node_id):
+        request = node_pb2.RecoverRequest(NodeId=node_id)
+        response = self.stub.Recovery(request)
+        return response
 
 def main():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    node_pb2_grpc.add_RaftServiceServicer_to_server(ClientImplementation(), server)
-    server.add_insecure_port('[::]:50051')
-    server.start()
-    print("Client Server started on port 50051")
-    server.wait_for_termination()
+    client = RaftClient('localhost:50051')
+    serve_request = node_pb2.GetRequest(key="a")
+    response = client.serve_get(serve_request)
+    print("Get Response:", response)
 
+    serve_request = node_pb2.SetRequest(key="b", value="1")
+    response = client.serve_set(serve_request)
+    print("Set Response:", response)
+    
 
+if __name__ == "__main__":
+    main()

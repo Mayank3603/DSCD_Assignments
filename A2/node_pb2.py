@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nnode.proto\"8\n\x08LogEntry\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04term\x18\x02 \x01(\x05\x12\x0f\n\x07\x63ommand\x18\x03 \x01(\t\"\x99\x01\n\x14\x41ppendEntriesRequest\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x11\n\tleader_id\x18\x02 \x01(\x05\x12\x16\n\x0eprev_log_index\x18\x03 \x01(\x05\x12\x15\n\rprev_log_term\x18\x04 \x01(\x05\x12\x1a\n\x07\x65ntries\x18\x05 \x03(\x0b\x32\t.LogEntry\x12\x15\n\rleader_commit\x18\x06 \x01(\x05\":\n\x15\x41ppendEntriesResponse\x12\x10\n\x08\x63urrTerm\x18\x01 \x01(\x05\x12\x0f\n\x07success\x18\x02 \x01(\t\"g\n\x12RequestVoteRequest\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x14\n\x0c\x63\x61ndidate_id\x18\x02 \x01(\x05\x12\x16\n\x0elast_log_index\x18\x03 \x01(\x05\x12\x15\n\rlast_log_term\x18\x04 \x01(\x05\"9\n\x13RequestVoteResponse\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x14\n\x0cvote_granted\x18\x02 \x01(\x08\"\"\n\x0fServeClientArgs\x12\x0f\n\x07Request\x18\x01 \x01(\t\"C\n\x10ServeClientReply\x12\x0c\n\x04\x44\x61ta\x18\x01 \x01(\t\x12\x10\n\x08LeaderID\x18\x02 \x01(\t\x12\x0f\n\x07Success\x18\x03 \x01(\x08\" \n\x0eRecoverRequest\x12\x0e\n\x06NodeId\x18\x01 \x01(\x05\"B\n\x0cRecoverReply\x12\x14\n\x0c\x63ommitLength\x18\x01 \x01(\x05\x12\x0c\n\x04term\x18\x02 \x01(\x05\x12\x0e\n\x06NodeId\x18\x03 \x01(\x05\x32\xe9\x01\n\x0bRaftService\x12>\n\rAppendEntries\x12\x15.AppendEntriesRequest\x1a\x16.AppendEntriesResponse\x12\x38\n\x0bRequestVote\x12\x13.RequestVoteRequest\x1a\x14.RequestVoteResponse\x12\x34\n\x0bServeClient\x12\x10.ServeClientArgs\x1a\x11.ServeClientReply\"\x00\x12*\n\x08Recovery\x12\x0f.RecoverRequest\x1a\r.RecoverReplyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nnode.proto\"8\n\x08LogEntry\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04term\x18\x02 \x01(\x05\x12\x0f\n\x07\x63ommand\x18\x03 \x01(\t\"\x99\x01\n\x14\x41ppendEntriesRequest\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x11\n\tleader_id\x18\x02 \x01(\x05\x12\x16\n\x0eprev_log_index\x18\x03 \x01(\x05\x12\x15\n\rprev_log_term\x18\x04 \x01(\x05\x12\x1a\n\x07\x65ntries\x18\x05 \x03(\x0b\x32\t.LogEntry\x12\x15\n\rleader_commit\x18\x06 \x01(\x05\":\n\x15\x41ppendEntriesResponse\x12\x10\n\x08\x63urrTerm\x18\x01 \x01(\x05\x12\x0f\n\x07success\x18\x02 \x01(\t\"g\n\x12RequestVoteRequest\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x14\n\x0c\x63\x61ndidate_id\x18\x02 \x01(\x05\x12\x16\n\x0elast_log_index\x18\x03 \x01(\x05\x12\x15\n\rlast_log_term\x18\x04 \x01(\x05\"9\n\x13RequestVoteResponse\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x14\n\x0cvote_granted\x18\x02 \x01(\x08\"\x19\n\nGetRequest\x12\x0b\n\x03key\x18\x01 \x01(\t\"(\n\nSetRequest\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x19\n\x08GetReply\x12\r\n\x05value\x18\x01 \x01(\t\"\x1b\n\x08SetReply\x12\x0f\n\x07Success\x18\x01 \x01(\t\"C\n\x10ServeClientReply\x12\x0c\n\x04\x44\x61ta\x18\x01 \x01(\t\x12\x10\n\x08LeaderID\x18\x02 \x01(\t\x12\x0f\n\x07Success\x18\x03 \x01(\x08\" \n\x0eRecoverRequest\x12\x0e\n\x06NodeId\x18\x01 \x01(\x05\"B\n\x0cRecoverReply\x12\x14\n\x0c\x63ommitLength\x18\x01 \x01(\x05\x12\x0c\n\x04term\x18\x02 \x01(\x05\x12\x0e\n\x06NodeId\x18\x03 \x01(\x05\x32\xfb\x01\n\x0bRaftService\x12>\n\rAppendEntries\x12\x15.AppendEntriesRequest\x1a\x16.AppendEntriesResponse\x12\x38\n\x0bRequestVote\x12\x13.RequestVoteRequest\x1a\x14.RequestVoteResponse\x12\"\n\x08ServeGet\x12\x0b.GetRequest\x1a\t.GetReply\x12\"\n\x08ServeSet\x12\x0b.SetRequest\x1a\t.SetReply\x12*\n\x08Recovery\x12\x0f.RecoverRequest\x1a\r.RecoverReplyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -31,14 +31,20 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_REQUESTVOTEREQUEST']._serialized_end=391
   _globals['_REQUESTVOTERESPONSE']._serialized_start=393
   _globals['_REQUESTVOTERESPONSE']._serialized_end=450
-  _globals['_SERVECLIENTARGS']._serialized_start=452
-  _globals['_SERVECLIENTARGS']._serialized_end=486
-  _globals['_SERVECLIENTREPLY']._serialized_start=488
-  _globals['_SERVECLIENTREPLY']._serialized_end=555
-  _globals['_RECOVERREQUEST']._serialized_start=557
-  _globals['_RECOVERREQUEST']._serialized_end=589
-  _globals['_RECOVERREPLY']._serialized_start=591
-  _globals['_RECOVERREPLY']._serialized_end=657
-  _globals['_RAFTSERVICE']._serialized_start=660
-  _globals['_RAFTSERVICE']._serialized_end=893
+  _globals['_GETREQUEST']._serialized_start=452
+  _globals['_GETREQUEST']._serialized_end=477
+  _globals['_SETREQUEST']._serialized_start=479
+  _globals['_SETREQUEST']._serialized_end=519
+  _globals['_GETREPLY']._serialized_start=521
+  _globals['_GETREPLY']._serialized_end=546
+  _globals['_SETREPLY']._serialized_start=548
+  _globals['_SETREPLY']._serialized_end=575
+  _globals['_SERVECLIENTREPLY']._serialized_start=577
+  _globals['_SERVECLIENTREPLY']._serialized_end=644
+  _globals['_RECOVERREQUEST']._serialized_start=646
+  _globals['_RECOVERREQUEST']._serialized_end=678
+  _globals['_RECOVERREPLY']._serialized_start=680
+  _globals['_RECOVERREPLY']._serialized_end=746
+  _globals['_RAFTSERVICE']._serialized_start=749
+  _globals['_RAFTSERVICE']._serialized_end=1000
 # @@protoc_insertion_point(module_scope)
