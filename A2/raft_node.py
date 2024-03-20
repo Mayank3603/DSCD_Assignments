@@ -60,8 +60,8 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
     def handleRecovery(self, request):
         response = self.Recovery(request)
         return response
-    
 
+    
 
 def main():
     # server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
