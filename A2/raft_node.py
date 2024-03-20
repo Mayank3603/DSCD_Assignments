@@ -172,3 +172,13 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 deliver(self.log[i].msg)
             self.commitLength = max(ready)
 
+if __name__ == '__main__':
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    node_pb2_grpc.add_RaftServiceServicer_to_server(RaftNodeImplementation(1), server)
+    server.add_insecure_port('[::]:50051')
+    server.start()
+    print("Raft Node started on port 50051")
+    server.wait_for_termination()
+
+    node = input("Enter the node id: ")
+    RaftNodeImplementation(node)
