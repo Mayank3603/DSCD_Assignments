@@ -2,33 +2,27 @@ import grpc
 from concurrent import futures
 import node_pb2 as node
 import node_pb2_grpc
-import random
 import os
-
+import time
 
 class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
-    def __init__(self, node_id, port):
+    def __init__(self, node_id, port, node_ips):
+        print("Initializing RaftNodeImplementation object...")
         self.node_id = node_id
         self.currTerm = 0
+        self.currRole = "Follower"  
         self.votedFor = None
         self.commitLength = 0
-        self.currRole = "Follower"
         self.currLeader = None
-        self.votesReceived = {}
-        self.sentLength = {}
-        self.ackedLength = {}
-        self.election_timer = random.randint(5, 10)
+        self.votesReceived = set()
+        self.election_timer = node_id * 4  
         self.ip = "localhost"
         self.port = port
-        self.data={}
-
-        self.node_ips=['localhost:50051','localhost:50052','localhost:50053']
-
+        self.node_ips = node_ips
         self.log_file = f"log_node_{node_id}.txt"
-        self.meta_file = f"meta_data_node_{node_id}.txt"
-        self.dump_file = f"dump_node_{node_id}.txt"
         self.init_files()
-
+        print(f"Election timer for node {node_id} is {self.election_timer} seconds.")
+        self.start_election_timer()
 
     def init_files(self):
         if not os.path.exists(self.log_file):
@@ -58,18 +52,84 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             self.votedFor = int(lines[2].split(":")[1].strip())
             self.commitLength = int(lines[3].split(":")[1].strip())
 
+    def start_election_timer(self):
+        while self.election_timer > 0:
+            time.sleep(1)
+            self.election_timer -= 1
+            if self.election_timer <= 0:
+                self.start_election()
+                break
+
+    
+    def cancel_election_timer(self):
+        self.election_timer = 0
+
+    def check_votes(self):
+
+        if len(self.votesReceived) >= (len(self.node_ips) + 1) // 2:
+            self.currRole = "Leader"
+            self.currLeader = self.node_id
+            print(f"Node {self.node_id} became the leader for term {self.currTerm}.")
+        else:
+            print(f"Node {self.node_id} did not receive majority votes yet.")
+
     def start_election(self):
         self.currTerm += 1
         self.currRole = "Candidate"
         self.votedFor = self.node_id
-        self.votesReceived = {self.node_id}
-        lastTerm = 0
-        if len(self.log) > 0:
-            lastTerm = self.log[-1].term
-        msg = (VoteRequest, self.node_id, self.currTerm, len(self.log), lastTerm)
-        for node in nodes:
-            send_msg(msg, node)
-        start_election_timer()
+        self.votesReceived = {self.node_id}  
+        print(f"Node {self.node_id} started an election for term {self.currTerm}.")
+        self.check_votes()
+
+    # def start_election(self):
+    #     self.currTerm += 1
+    #     self.currRole = "Candidate"
+    #     self.votedFor = self.node_id
+    #     self.votesReceived = {self.node_id}
+    #     lastTerm = 0
+    #     if len(self.log) > 0:
+    #         lastTerm = self.log[-1].term
+    #     msg = (VoteRequest, self.node_id, self.currTerm, len(self.log), lastTerm)
+    #     for node in nodes:
+    #         send_msg(msg, node)
+    #     self.start_election_timer()
+    #     print(f"Node {self.node_id} started an election for term {self.currTerm}.")
+    #     self.log_to_dump(f"Election started for term {self.currTerm}.")
+
+
+    def handle_vote_response(self, response):
+        if self.currRole == "Candidate" and response.term == self.currTerm and response.voteGranted:
+            self.votesReceived.add(response.voterId)
+            print(f"Received vote from {response.voterId}. Total votes: {len(self.votesReceived)}")
+            self.check_votes()
+        elif response.term > self.currTerm:
+            self.currTerm = response.term
+            self.currRole = "Follower"
+            self.votedFor = None
+
+        # def handle_vote_response(self, response):
+        #     if self.currRole == "Candidate" and response.term == self.currTerm and response.voteGranted:
+        #     self.votesReceived.add(response.voterId)
+        #     print(f"Node {self.node_id} received vote from {response.voterId}. Total votes: {len(self.votesReceived)}")
+        #     self.log_to_dump(f"Received vote from {response.voterId}. Total votes: {len(self.votesReceived)}")
+        #     if len(self.votesReceived) >= (len(nodes) + 1) // 2:
+        #         self.currRole = "Leader"
+        #         self.currLeader = self.nodeId
+        #         self.cancel_election_timer()
+        #         print(f"Node {self.node_id} became the leader for term {self.currTerm}.")
+        #         self.log_to_dump(f"Became leader for term {self.currTerm}.")
+        #         for follower in nodes - {self.nodeId}:
+        #             self.sentLength[follower] = len(self.log)
+        #             self.ackedLength[follower] = 0
+        #             replicate_log(self.nodeId, follower)
+        # elif response.term > self.currTerm:
+        #     self.currTerm = response.term
+        #     self.currRole = "Follower"
+        #     self.votedFor = None
+        #     self.cancel_election_timer()
+        #     print(f"Node {self.node_id} stepped down to follower due to higher term: {self.currTerm}.")
+        #     self.log_to_dump(f"Stepped down to follower due to higher term: {self.currTerm}.")
+
 
     def handle_suspected_leader_failure(self):
         self.start_election()
@@ -86,10 +146,10 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             self.votedFor = request.candidateId
             return node.VoteResponse(term=self.currTerm, voteGranted=True)
         return node.VoteResponse(term=self.currTerm, voteGranted=False)
-
+   
     def handle_append_entries(self, request):
         if request.term > self.currTerm:
-            self.currTerm = request.term
+            self.start_election_timer()
             self.votedFor = None
             self.currRole = "Follower"
             self.currLeader = request.leaderId
@@ -102,22 +162,22 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.log[request.prevLogIndex + 1:] = request.entries
         return node.AppendEntryResponse(term=self.currTerm, success=True)
 
-    def handle_vote_response(self, response):
-        if self.currRole == "Candidate" and response.term == self.currTerm and response.voteGranted:
-            self.votesReceived.add(response.voterId)
-            if len(self.votesReceived) >= (len(nodes) + 1) // 2:
-                self.currRole = "Leader"
-                self.currLeader = self.nodeId
-                cancel_election_timer()
-                for follower in nodes - {self.nodeId}:
-                    self.sentLength[follower] = len(self.log)
-                    self.ackedLength[follower] = 0
-                    replicate_log(self.nodeId, follower)
-        elif response.term > self.currTerm:
-            self.currTerm = response.term
-            self.currRole = "Follower"
-            self.votedFor = None
-            cancel_election_timer()
+    # def handle_vote_response(self, response):
+    #     if self.currRole == "Candidate" and response.term == self.currTerm and response.voteGranted:
+    #         self.votesReceived.add(response.voterId)
+    #         if len(self.votesReceived) >= (len(nodes) + 1) // 2:
+    #             self.currRole = "Leader"
+    #             self.currLeader = self.nodeId
+    #             cancel_election_timer()
+    #             for follower in nodes - {self.nodeId}:
+    #                 self.sentLength[follower] = len(self.log)
+    #                 self.ackedLength[follower] = 0
+    #                 replicate_log(self.nodeId, follower)
+    #     elif response.term > self.currTerm:
+    #         self.currTerm = response.term
+    #         self.currRole = "Follower"
+    #         self.votedFor = None
+    #         cancel_election_timer()
 
     def broadcast_msg_request(self, msg):
         if self.currRole == "Leader":
@@ -206,20 +266,24 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
     def set(self, key, value):
         self.data[key] = value
 
+
     # def acks(self, length):
     #     pass
 
 
 if __name__ == '__main__':
+    node_id = int(input("Enter the node id: "))  
+    port = int(input("Enter the port number: "))  
+    node_ips = ['localhost:50051','localhost:50052']  
 
-    node_id = input("Enter the node id: ")
-    port = input("Enter the port number: ")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    node_pb2_grpc.add_RaftServiceServicer_to_server(RaftNodeImplementation(node_id, port), server)
+    raft_node = RaftNodeImplementation(node_id, port, node_ips)
+    print(f"Node {node_id} server created.")
+    node_pb2_grpc.add_RaftServiceServicer_to_server(raft_node, server)
     server.add_insecure_port(f'[::]:{port}')
     server.start()
     print(f"Raft Node Server started on port {port}")
-    server.wait_for_termination()
 
-    start_election()
-
+    while True:
+        print(f"Node {node_id} - Role: {raft_node.currRole}, Term: {raft_node.currTerm}")
+        time.sleep(5)
