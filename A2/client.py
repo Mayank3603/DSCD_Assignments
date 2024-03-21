@@ -15,20 +15,19 @@ class RaftClient:
         response = self.stub.ServeSet(request)
         return response
 
-    def recovery(self, node_id):
-        request = node_pb2.RecoverRequest(NodeId=node_id)
-        response = self.stub.Recovery(request)
-        return response
+
 
 def main():
-    client = RaftClient('localhost:50051')
-    serve_request = node_pb2.GetRequest(key="a")
-    response = client.serve_get(serve_request)
-    print("Get Response:", response)
+    ips=['localhost:50051','localhost:50052','localhost:50053']
+    leaderip=ips[0]
+    client = RaftClient(leaderip)
 
     serve_request = node_pb2.SetRequest(key="b", value="1")
     response = client.serve_set(serve_request)
     print("Set Response:", response)
+    serve_request = node_pb2.GetRequest(key="b")
+    response = client.serve_get(serve_request)
+    print("Get Response:", response)
     
 
 if __name__ == "__main__":

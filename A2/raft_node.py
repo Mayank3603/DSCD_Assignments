@@ -20,12 +20,15 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.election_timer = random.randint(5, 10)
         self.ip = "localhost"
         self.port = port
+        self.data={}
 
-        self.log_file = f"log_{node_id}.txt"
-        self.meta_file = f"meta_data_{node_id}.txt"
+        self.node_ips=['localhost:50051','localhost:50052','localhost:50053']
+
+        self.log_file = f"log_node_{node_id}.txt"
+        self.meta_file = f"meta_data_node_{node_id}.txt"
+        self.dump_file = f"dump_node_{node_id}.txt"
         self.init_files()
 
-        self.dump_file = "dump.txt"  # Add dump file
 
     def init_files(self):
         if not os.path.exists(self.log_file):
@@ -186,8 +189,8 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             self.commitLength = max(ready)
 
     def get(self, key):
-
-        return "Value for key: {}".format(key)
+        if(key in self.data):
+            return self.data[key]
 
     def ServeGet(self, request, context):
         key = request.key
@@ -201,10 +204,8 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         return node.SetReply(Success="True")
 
     def set(self, key, value):
-        # Implement logic to set the value associated with the given key
+        self.data[key] = value
         
-        pass
-
     def acks(self, length):
         # Implement logic to count acknowledgments from nodes
         pass
@@ -216,8 +217,8 @@ if __name__ == '__main__':
     port = input("Enter the port number: ")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     node_pb2_grpc.add_RaftServiceServicer_to_server(RaftNodeImplementation(node_id, port), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port(f'[::]:{port}')
     server.start()
-    print("Raft Node Server started on port 50051")
+    print(f"Raft Node Server started on port {port}")
     server.wait_for_termination()
 
