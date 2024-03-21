@@ -1,0 +1,4 @@
+node_id: 3
+currTerm: 0
+votedFor: None
+commitLength: 0

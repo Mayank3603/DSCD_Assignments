@@ -110,7 +110,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 self.currLeader = self.nodeId
                 cancel_election_timer()
                 for follower in nodes - {self.nodeId}:
-                    self.sentLength[follower] = len(self.log                )
+                    self.sentLength[follower] = len(self.log)
                     self.ackedLength[follower] = 0
                     replicate_log(self.nodeId, follower)
         elif response.term > self.currTerm:
@@ -205,10 +205,9 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
 
     def set(self, key, value):
         self.data[key] = value
-        
-    def acks(self, length):
-        # Implement logic to count acknowledgments from nodes
-        pass
+
+    # def acks(self, length):
+    #     pass
 
 
 if __name__ == '__main__':
@@ -221,4 +220,6 @@ if __name__ == '__main__':
     server.start()
     print(f"Raft Node Server started on port {port}")
     server.wait_for_termination()
+
+    start_election()
 
