@@ -25,9 +25,9 @@ def main():
     serve_request = node_pb2.SetRequest(key="b", value="1")
     response = client.serve_set(serve_request)
     print("Set Response:", response)
-    serve_request = node_pb2.GetRequest(key="b")
-    response = client.serve_get(serve_request)
-    print("Get Response:", response)
+    # serve_request = node_pb2.GetRequest(key="b")
+    # response = client.serve_get(serve_request)
+    # print("Get Response:", response)
     
 
 if __name__ == "__main__":

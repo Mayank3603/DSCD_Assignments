@@ -6,14 +6,18 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class LogEntry(_message.Message):
-    __slots__ = ("index", "term", "command")
+    __slots__ = ("index", "term", "key", "operation", "value")
     INDEX_FIELD_NUMBER: _ClassVar[int]
     TERM_FIELD_NUMBER: _ClassVar[int]
-    COMMAND_FIELD_NUMBER: _ClassVar[int]
+    KEY_FIELD_NUMBER: _ClassVar[int]
+    OPERATION_FIELD_NUMBER: _ClassVar[int]
+    VALUE_FIELD_NUMBER: _ClassVar[int]
     index: int
     term: int
-    command: str
-    def __init__(self, index: _Optional[int] = ..., term: _Optional[int] = ..., command: _Optional[str] = ...) -> None: ...
+    key: str
+    operation: str
+    value: str
+    def __init__(self, index: _Optional[int] = ..., term: _Optional[int] = ..., key: _Optional[str] = ..., operation: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
 
 class AppendEntriesRequest(_message.Message):
     __slots__ = ("term", "leader_id", "prev_log_index", "prev_log_term", "entries", "leader_commit")

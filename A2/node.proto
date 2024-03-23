@@ -4,7 +4,9 @@ syntax = "proto3";
 message LogEntry {
   int32 index = 1;
   int32 term = 2;
-  string command = 3;
+  string key =3;
+  string operation =4;
+  string value=5;
 }
 
 message AppendEntriesRequest {
