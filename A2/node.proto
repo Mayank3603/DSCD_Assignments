@@ -25,6 +25,7 @@ message AppendEntriesRequest {
   int32 prev_log_term = 4;
   repeated LogEntry entries = 5;
   int32 leader_commit = 6;
+  int32 lease_duration = 7;
 }
 
 message AppendEntriesResponse {
@@ -42,6 +43,7 @@ message RequestVoteRequest {
 message RequestVoteResponse {
   int32 term = 1;
   bool vote_granted = 2;
+  int32 lease_duration = 5;
 }
 
 message GetRequest {

@@ -36,20 +36,22 @@ class LogEntry(_message.Message):
     def __init__(self, index: _Optional[int] = ..., term: _Optional[int] = ..., key: _Optional[str] = ..., operation: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
 
 class AppendEntriesRequest(_message.Message):
-    __slots__ = ("term", "leader_id", "prev_log_index", "prev_log_term", "entries", "leader_commit")
+    __slots__ = ("term", "leader_id", "prev_log_index", "prev_log_term", "entries", "leader_commit", "lease_duration")
     TERM_FIELD_NUMBER: _ClassVar[int]
     LEADER_ID_FIELD_NUMBER: _ClassVar[int]
     PREV_LOG_INDEX_FIELD_NUMBER: _ClassVar[int]
     PREV_LOG_TERM_FIELD_NUMBER: _ClassVar[int]
     ENTRIES_FIELD_NUMBER: _ClassVar[int]
     LEADER_COMMIT_FIELD_NUMBER: _ClassVar[int]
+    LEASE_DURATION_FIELD_NUMBER: _ClassVar[int]
     term: int
     leader_id: int
     prev_log_index: int
     prev_log_term: int
     entries: _containers.RepeatedCompositeFieldContainer[LogEntry]
     leader_commit: int
-    def __init__(self, term: _Optional[int] = ..., leader_id: _Optional[int] = ..., prev_log_index: _Optional[int] = ..., prev_log_term: _Optional[int] = ..., entries: _Optional[_Iterable[_Union[LogEntry, _Mapping]]] = ..., leader_commit: _Optional[int] = ...) -> None: ...
+    lease_duration: int
+    def __init__(self, term: _Optional[int] = ..., leader_id: _Optional[int] = ..., prev_log_index: _Optional[int] = ..., prev_log_term: _Optional[int] = ..., entries: _Optional[_Iterable[_Union[LogEntry, _Mapping]]] = ..., leader_commit: _Optional[int] = ..., lease_duration: _Optional[int] = ...) -> None: ...
 
 class AppendEntriesResponse(_message.Message):
     __slots__ = ("currTerm", "success")
@@ -72,12 +74,14 @@ class RequestVoteRequest(_message.Message):
     def __init__(self, term: _Optional[int] = ..., candidate_id: _Optional[int] = ..., last_log_index: _Optional[int] = ..., last_log_term: _Optional[int] = ...) -> None: ...
 
 class RequestVoteResponse(_message.Message):
-    __slots__ = ("term", "vote_granted")
+    __slots__ = ("term", "vote_granted", "lease_duration")
     TERM_FIELD_NUMBER: _ClassVar[int]
     VOTE_GRANTED_FIELD_NUMBER: _ClassVar[int]
+    LEASE_DURATION_FIELD_NUMBER: _ClassVar[int]
     term: int
     vote_granted: bool
-    def __init__(self, term: _Optional[int] = ..., vote_granted: bool = ...) -> None: ...
+    lease_duration: int
+    def __init__(self, term: _Optional[int] = ..., vote_granted: bool = ..., lease_duration: _Optional[int] = ...) -> None: ...
 
 class GetRequest(_message.Message):
     __slots__ = ("key",)

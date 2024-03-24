@@ -2,12 +2,11 @@ import grpc
 from concurrent import futures
 import node_pb2 as node
 import node_pb2_grpc
-import os
 import time
 import threading
 
 class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
-    def __init__(self, node_id, port, node_ips):
+    def __init__(self, node_id, port, node_ips, lease_duration=10):
         self.node_id = node_id
         self.currTerm = 0
         self.votedFor = None
@@ -18,6 +17,8 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.votesReceived = set()
         self.sentLength = {}
         self.ackedLength = {}
+        self.lease_duration = lease_duration
+        # self.lease_timer = None
         self.election_timer = node_id * 4
         self.heartbeat_interval = 1
         self.ip = "localhost"
@@ -25,17 +26,39 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.node_ip = f"localhost:{port}"
         self.node_ips = node_ips
         self.data = {}
+        # self.oldLeaseWaitTimer=0
         
         self.election_timer_thread = threading.Thread(target=self.run_election_timer)
         self.election_timer_thread.daemon = True
         self.election_timer_thread.start()
         
-        # if(self.currLeader!=None):
-        #     updateLogs()
+        self.lease_timer_thread = threading.Thread(target=self.run_lease_timer)
+        self.lease_timer_thread.daemon = True
+        self.lease_timer_thread.start()
 
         self.heartbeat_thread = None
         if self.currRole == "Leader":
             self.start_heartbeat_thread()
+
+    def run_lease_timer(self):
+        while True:
+            if(self.currLeader is not None):
+                self.start_lease_timer()
+                time.sleep(1)
+
+    def start_lease_timer(self):
+        #if(self.currRole == "Leader"): 
+        while self.lease_duration > 0:
+            time.sleep(1)
+            self.lease_duration -= 1
+            print(f"Node {self.node_id} Lease Duration: {self.lease_duration} seconds.")
+        if(self.lease_duration == 0):
+            self.become_follower()
+            self.start_election()
+
+    def become_follower(self):
+        self.currRole = "Follower"
+        print(f"Node {self.node_id} became Follower after lease timeout.")
 
     def updateLogs(self):
         if self.currLeader is not None:
@@ -84,7 +107,6 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         response = node.LogReplicationResponse(log_entries=log_entries)
         return response
 
-
     def run_election_timer(self):
         while True:
             if self.currRole in ["Follower", "Candidate"]:
@@ -102,12 +124,13 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             time.sleep(self.heartbeat_interval)
 
     def start_election(self):
+        print("<--------------- starting election ------------------>")
         self.currTerm += 1
         self.currRole = "Candidate"
         self.votedFor = self.node_id
         self.votesReceived.add(self.node_id)
         self.lastTerm = self.log[-1].get('term', 0) if self.log else 0
-
+        temp=0
         for i in self.node_ips.values():
             if i != self.node_ip:
                 try:
@@ -118,39 +141,27 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                     response = stub.RequestVote(request)
                     if response.vote_granted:
                         self.votesReceived.add(i)
+                    temp=max(temp,response.lease_duration)
                 except Exception as e:
                     print(f"Node {self.node_id} failed to send or receive RequestVote RPC to/from Node {i}. Error: {e}")
                     continue
 
-        self.check_votes()
-        self.election_timer = self.node_id * 4
+        self.check_votes(temp)
+        self.election_timer = self.node_id * 4 
         self.start_election_timer()
 
-    def check_votes(self):
+    def check_votes(self, oldLeaseWaitTimer):
         if len(self.votesReceived) > (len(self.node_ips) + 1) // 2:
+            self.waitForOldLease(oldLeaseWaitTimer)
+            print(f"Node {self.node_id} received majority votes. Transitioning to Leader.")
             self.become_leader()
         else:
             print(f"Node {self.node_id} did not receive majority votes yet.")
 
-    def RequestVote(self, request, context):
-        print(f"Node {self.node_id} received RequestVote RPC from Node {request.candidate_id} for term {request.term}.")
-        if request.term > self.currTerm:
-            print(f"Node {self.node_id} transitioning to follower for term {request.term}.")
-            self.transition_to_follower(request.term)
-        lastTerm = self.log[-1].get('term', 0) if self.log else 0
-        logOk = (request.last_log_term > lastTerm) or \
-                 (request.last_log_term == lastTerm and request.last_log_index >= len(self.log) - 1)
-        print(f"Node {self.node_id} logOk: {logOk}")
-        if request.term == self.currTerm and logOk and self.votedFor in {request.candidate_id, None}:
-            self.votedFor = request.candidate_id
-            print(f"Node {self.node_id} voted for Node {request.candidate_id} for term {request.term}.")
-            return node.RequestVoteResponse(term=self.currTerm, vote_granted=True)
-        else:
-            print(f"Node {self.node_id} did not vote for Node {request.candidate_id} for term {request.term}.")
-            return node.RequestVoteResponse(term=self.currTerm, vote_granted=False)
+    def waitForOldLease(self, oldLeaseWaitTimer):
+        time.sleep(oldLeaseWaitTimer)
 
     def start_election_timer(self):
-        print("################")
         while self.election_timer > 0:
             time.sleep(1)
             self.election_timer -= 1
@@ -174,7 +185,8 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                         prev_log_index=prev_log_index,
                         prev_log_term=prev_log_term,
                         entries=[],
-                        leader_commit=self.commitLength
+                        leader_commit=self.commitLength,
+                        lease_duration=self.lease_duration
                     )
                     response = stub.AppendEntries(request)
                     print(f"Node {self.node_id} received heartbeat response from Node {follower}.")
@@ -187,26 +199,46 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.election_timer = self.node_id * 4
 
     def AppendEntries(self, request, context):
-        print(f"Node {self.node_id} received AppendEntries RPC from Node {request.leader_id}.")
-        self.currLeader = request.leader_id
-        response = node.AppendEntriesResponse(currTerm=self.currTerm, success="False")
+            print(f"Node {self.node_id} received AppendEntries RPC from Node {request.leader_id}.")
+            self.currLeader = request.leader_id
+            response = node.AppendEntriesResponse(currTerm=self.currTerm, success="False")
+            if request.term >= self.currTerm:
+                self.transition_to_follower(request.term)
+                response.currTerm = self.currTerm
+                response.success = "True"
+                self.ackedLength[request.leader_id] = len(self.log)
+                if len(request.entries) > 0:
+                    for entry in request.entries:
+                        self.apply_entry(entry)
+            
+            if self.currRole == "Leader":
+                self.restart_lease_timer()
 
-        if request.term >= self.currTerm:
-            self.transition_to_follower(request.term)
-            response.currTerm = self.currTerm
-            response.success = "True"
-            self.ackedLength[request.leader_id] = len(self.log)
-            if len(request.entries) > 0:
-                for entry in request.entries:
-                    self.apply_entry(entry)
-        
-        # self.replicate_log(request.prev_log_index + 1, request.leader_commit, request.entries)
+            if request.lease_duration > self.lease_duration:
+                self.lease_duration = request.lease_duration
+            
+            if request.leader_commit > self.commitLength:
+                self.commitLength = min(request.leader_commit, len(self.log))
+                self.commit_log_entries()
+            self.election_timer = self.node_id * 4
+            return response
 
-        if request.leader_commit > self.commitLength:
-            self.commitLength = min(request.leader_commit, len(self.log))
-            self.commit_log_entries()
-        self.election_timer = self.node_id * 4
-        return response
+    def RequestVote(self, request, context):
+            print(f"Node {self.node_id} received RequestVote RPC from Node {request.candidate_id} for term {request.term}.")
+            if request.term > self.currTerm:
+                print(f"Node {self.node_id} transitioning to follower for term {request.term}.")
+                self.transition_to_follower(request.term)
+            lastTerm = self.log[-1].get('term', 0) if self.log else 0
+            logOk = (request.last_log_term > lastTerm) or \
+                    (request.last_log_term == lastTerm and request.last_log_index >= len(self.log) - 1)
+            print(f"Node {self.node_id} logOk: {logOk}")
+            if request.term == self.currTerm and logOk and self.votedFor in {request.candidate_id, None}:
+                self.votedFor = request.candidate_id
+                print(f"Node {self.node_id} voted for Node {request.candidate_id} for term {request.term}.")
+                return node.RequestVoteResponse(term=self.currTerm, vote_granted=True, lease_duration=self.lease_duration)
+            else:
+                print(f"Node {self.node_id} did not vote for Node {request.candidate_id} for term {request.term}.")
+                return node.RequestVoteResponse(term=self.currTerm, vote_granted=False, lease_duration=self.lease_duration)
 
     def apply_entry(self, entry):
         if entry.operation == "GET":
@@ -257,13 +289,16 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 prev_log_index=prev_log_index,
                 prev_log_term=prev_log_term,
                 entries=[log_entry],
-                leader_commit=self.commitLength
+                leader_commit=self.commitLength,
+                lease_duration=self.lease_duration
             )
             response = stub.AppendEntries(request)
             print(f"Node {self.node_id} received AppendEntriesResponse RPC from Node {follower_id}.")
             if response.success == "True":
                 self.sentLength[follower_id] += 1
                 self.ackedLength[follower_id] = self.sentLength[follower_id]
+                self.data[log_entry['key']] = log_entry['value']
+                self.commitLength += 1
         except Exception as e:
             print(
                 f"Node {self.node_id} failed to send or receive AppendEntries RPC to/from Node {follower_id}. Error: {e}")
@@ -274,6 +309,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.currLeader = self.node_id
         print(f"Node {self.node_id} became Leader for term {self.currTerm}.")
         self.start_heartbeat_thread()
+        self.lease_duration = 10
         for follower in self.node_ips.values():
             if follower != self.node_ip:
                 self.sentLength[follower] = len(self.log)
@@ -322,8 +358,11 @@ if  __name__ == '__main__':
         if raft_node.currRole == "Follower" and raft_node.currLeader is not None:
             raft_node.updateLogs()
         print(f"Node {node_id} is {raft_node.currRole} for term {raft_node.currTerm}.")
+        print("Logs: ")
         for i in raft_node.log:
             print(i)
+        print("Data: ")
         for(i, j) in raft_node.data.items():
             print(f"Key: {i}, Value: {j}")
+        print(f"Current Lease Duration: {raft_node.lease_duration} seconds.")
 
