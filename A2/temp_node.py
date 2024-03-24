@@ -8,7 +8,6 @@ import threading
 
 class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
     def __init__(self, node_id, port, node_ips):
-        print("Initializing RaftNodeImplementation object...")
         self.node_id = node_id
         self.currTerm = 0
         self.votedFor = None
@@ -25,16 +24,66 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.port = port
         self.node_ip = f"localhost:{port}"
         self.node_ips = node_ips
-        self.data = {}  # New attribute to store key-value data
-        print(f"Election timer for node {node_id} is {self.election_timer} seconds.")
-
+        self.data = {}
+        
         self.election_timer_thread = threading.Thread(target=self.run_election_timer)
         self.election_timer_thread.daemon = True
         self.election_timer_thread.start()
+        
+        # if(self.currLeader!=None):
+        #     updateLogs()
 
         self.heartbeat_thread = None
         if self.currRole == "Leader":
             self.start_heartbeat_thread()
+
+    def updateLogs(self):
+        if self.currLeader is not None:
+            try:
+                leader_ip = self.node_ips[self.currLeader]
+                channel = grpc.insecure_channel(leader_ip)
+                stub = node_pb2_grpc.RaftServiceStub(channel)
+                last_log_index = len(self.log) - 1
+                last_log_term = self.log[last_log_index]['term'] if self.log else 0
+                request = node.LogReplicationRequest(
+                    node_id=self.node_id,
+                    last_log_index=last_log_index,
+                    last_log_term=last_log_term
+                )
+                response = stub.ReplicateLogs(request)
+
+                for log_entry in response.log_entries:
+                    print(log_entry.index, len(self.log))
+                    if log_entry.index >= len(self.log):
+                        self.log.extend([None] * (log_entry.index - len(self.log) + 1))
+                    if self.log[log_entry.index] is None or self.log[log_entry.index]['term'] != log_entry.term:
+                        self.log[log_entry.index] = {
+                            'term': log_entry.term,
+                            'key': log_entry.key,
+                            'operation': log_entry.operation,
+                            'value': log_entry.value
+                        }
+                print(f"Node {self.node_id} logs updated successfully.")
+            except Exception as e:
+                print(f"Failed to update logs from leader: {e}")
+
+    def ReplicateLogs(self, request, context):
+        print(f"Node {self.node_id} received LogReplicationRequest from Node {request.node_id}.")
+        last_log_index = request.last_log_index
+        last_log_term = request.last_log_term
+        log_entries = []
+        for index, entry in enumerate(self.log[last_log_index + 1:], start=last_log_index + 1):
+            log_entry = node.LogEntry(
+                index=index,
+                term=entry['term'],
+                key=entry['key'],
+                operation=entry['operation'],
+                value=entry['value']
+            )
+            log_entries.append(log_entry)
+        response = node.LogReplicationResponse(log_entries=log_entries)
+        return response
+
 
     def run_election_timer(self):
         while True:
@@ -59,21 +108,18 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.votesReceived.add(self.node_id)
         self.lastTerm = self.log[-1].get('term', 0) if self.log else 0
 
-        for i in self.node_ips:
+        for i in self.node_ips.values():
             if i != self.node_ip:
-                print(f"Node {self.node_id} sending RequestVote RPC to Node {i}.")
                 try:
                     channel = grpc.insecure_channel(i)
                     stub = node_pb2_grpc.RaftServiceStub(channel)
                     request = node.RequestVoteRequest(term=self.currTerm, candidate_id=self.node_id,
                                                       last_log_index=len(self.log) - 1, last_log_term=self.lastTerm)
                     response = stub.RequestVote(request)
-                    print(f"Node {self.node_id} received RequestVoteResponse RPC from Node {i}.")
                     if response.vote_granted:
                         self.votesReceived.add(i)
                 except Exception as e:
-                    print(
-                        f"Node {self.node_id} failed to send or receive RequestVote RPC to/from Node {i}. Error: {e}")
+                    print(f"Node {self.node_id} failed to send or receive RequestVote RPC to/from Node {i}. Error: {e}")
                     continue
 
         self.check_votes()
@@ -91,7 +137,6 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         if request.term > self.currTerm:
             print(f"Node {self.node_id} transitioning to follower for term {request.term}.")
             self.transition_to_follower(request.term)
-
         lastTerm = self.log[-1].get('term', 0) if self.log else 0
         logOk = (request.last_log_term > lastTerm) or \
                  (request.last_log_term == lastTerm and request.last_log_index >= len(self.log) - 1)
@@ -115,7 +160,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             self.start_election()
 
     def send_heartbeats(self):
-        for follower, _ in self.node_ips.items():
+        for i,follower in self.node_ips.items():
             if follower != self.node_ip:
                 print(f"Node {self.node_id} sending heartbeat to Node {follower}.")
                 try:
@@ -143,6 +188,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
 
     def AppendEntries(self, request, context):
         print(f"Node {self.node_id} received AppendEntries RPC from Node {request.leader_id}.")
+        self.currLeader = request.leader_id
         response = node.AppendEntriesResponse(currTerm=self.currTerm, success="False")
 
         if request.term >= self.currTerm:
@@ -153,24 +199,23 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             if len(request.entries) > 0:
                 for entry in request.entries:
                     self.apply_entry(entry)
+        
+        # self.replicate_log(request.prev_log_index + 1, request.leader_commit, request.entries)
 
         if request.leader_commit > self.commitLength:
             self.commitLength = min(request.leader_commit, len(self.log))
-            self.commit_log_entries()  
+            self.commit_log_entries()
         self.election_timer = self.node_id * 4
         return response
 
     def apply_entry(self, entry):
-
         if entry.operation == "GET":
             value = self.get(entry.key)
-            print(f"Node {self.node_id} applied GET operation for key: {entry.key}, value: {value}")
         elif entry.operation == "SET":
-            self.log.append({'term': entry.term, 'operation': entry.operation, 'key': entry.key, 'value': entry.value}) #commit later?
+            self.log.append({'term': entry.term, 'operation': entry.operation, 'key': entry.key, 'value': entry.value})
             print(f"Node {self.node_id} added SET operation to log for key: {entry.key}, value: {entry.value}")
 
     def commit_log_entries(self):
-
         for i in range(self.commitLength):
             entry = self.log[i]
             if entry['operation'] == "SET":
@@ -193,7 +238,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
 
         print(f"Node {self.node_id} added SET operation to log for key: {key}, value: {value}")
         
-        for follower in self.node_ips.keys():
+        for follower in self.node_ips.values():
             if follower != self.node_ip:
                 print(f"Node {self.node_id} sending LOG to Node {follower}.") 
                 self.replicate_log_entry(log_entry, self.node_id, follower)
@@ -204,11 +249,13 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         try:
             channel = grpc.insecure_channel(follower_id)
             stub = node_pb2_grpc.RaftServiceStub(channel)
+            prev_log_index = self.sentLength.get(follower_id, 0) - 1
+            prev_log_term = self.log[prev_log_index]['term'] if prev_log_index >= 0 else 0
             request = node.AppendEntriesRequest(
                 term=self.currTerm,
                 leader_id=leader_id,
-                prev_log_index=len(self.log) - 2,
-                prev_log_term=self.log[-2]['term'] if len(self.log) > 1 else 0,
+                prev_log_index=prev_log_index,
+                prev_log_term=prev_log_term,
                 entries=[log_entry],
                 leader_commit=self.commitLength
             )
@@ -217,8 +264,6 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             if response.success == "True":
                 self.sentLength[follower_id] += 1
                 self.ackedLength[follower_id] = self.sentLength[follower_id]
-                self.data[log_entry['key']] = log_entry['value']
-                self.commitLength += 1
         except Exception as e:
             print(
                 f"Node {self.node_id} failed to send or receive AppendEntries RPC to/from Node {follower_id}. Error: {e}")
@@ -229,64 +274,56 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.currLeader = self.node_id
         print(f"Node {self.node_id} became Leader for term {self.currTerm}.")
         self.start_heartbeat_thread()
-        for follower in self.node_ips.keys():
+        for follower in self.node_ips.values():
             if follower != self.node_ip:
                 self.sentLength[follower] = len(self.log)
                 self.ackedLength[follower] = 0
-                self.replicate_log(self.node_id, follower)
+                #self.replicate_log(0, self.commitLength, self.log)
 
     def transition_to_follower(self, term):
         self.currTerm = term
         self.currRole = "Follower"
         self.votedFor = None
+        #self.replicate_log(0, self.commitLength, self.log)
 
-    def replicate_log(self, leader_id, follower_id):
-        print(f"Node {self.node_id} sending AppendEntries RPC to Node {follower_id}.")
-        try:
-            channel = grpc.insecure_channel(follower_id)
-            stub = node_pb2_grpc.RaftServiceStub(channel)
-            prev_log_index = self.sentLength.get(follower_id, 0) - 1
-            prev_log_term = self.log[prev_log_index]['term'] if prev_log_index >= 0 else 0
-            entries_to_send = self.log[prev_log_index + 1:]
-            request = node.AppendEntriesRequest(
-                term=self.currTerm,
-                leader_id=leader_id,
-                prev_log_index=prev_log_index,
-                prev_log_term=prev_log_term,
-                entries=entries_to_send,
-                leader_commit=self.commitLength
-            )
-            response = stub.AppendEntries(request)
-            print(f"Node {self.node_id} received AppendEntriesResponse RPC from Node {follower_id}.")
-            if response.success == "True":
-                self.sentLength[follower_id] += len(entries_to_send)
-                self.ackedLength[follower_id] = self.sentLength[follower_id]
-        except Exception as e:
-            print(
-                f"Node {self.node_id} failed to send or receive AppendEntries RPC to/from Node {follower_id}. Error: {e}")
-            return
+    # def replicate_log(self, prefixLen, leaderCommit, suffix):
+    #     if suffix and len(suffix) > 0 and len(self.log) > prefixLen:
+    #         index = min(len(self.log), prefixLen + len(suffix)) - 1
+    #         if self.log[index]['term'] == suffix[index - prefixLen]['term']:
+    #             self.log = self.log[:prefixLen]
+    #             # print(f"Node {self.node_id} replicated log: {self.log}")
+        
+    #     if prefixLen + len(suffix) > len(self.log):
 
-if __name__ == '__main__':
+    #         for i in range(len(self.log) - prefixLen, len(suffix)):
+    #             print("Suffix: ",suffix[i])
+    #             self.log.append(suffix[i])
+    #             # print(f"Node {self.node_id} replicated log: {self.log}")
+        
+    #     if leaderCommit > self.commitLength:
+    #         for i in range(self.commitLength, leaderCommit):
+    #             # Deliver log[i].msg to the application (not implemented here)
+    #             pass
+    #         self.commitLength = leaderCommit
+
+if  __name__ == '__main__':
     node_id = int(input("Enter the node id: "))
     port = int(input("Enter the port number: "))
-    node_ips = {'localhost:50051': 0, 'localhost:50052': 1}
+    node_ips = {1:'localhost:50051', 2:'localhost:50052'}
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     raft_node = RaftNodeImplementation(node_id, port, node_ips)
-    print(f"Node {node_id} server created.")
     node_pb2_grpc.add_RaftServiceServicer_to_server(raft_node, server)
     server.add_insecure_port(f'[::]:{port}')
     server.start()
-    print(f"Raft Node Server started on port {port}")
 
     while True:
-        print(f"Node {node_id} - Role: {raft_node.currRole}, Term: {raft_node.currTerm}")
-        print("Log:")
-        for i, entry in enumerate(raft_node.log):
-            print(f"Index: {i}, Entry: {entry}")
-
-        print("Data:")
-        for key, value in raft_node.data.items():
-            print(f"Key: {key}, Value: {value}")
         time.sleep(5)
+        if raft_node.currRole == "Follower" and raft_node.currLeader is not None:
+            raft_node.updateLogs()
+        print(f"Node {node_id} is {raft_node.currRole} for term {raft_node.currTerm}.")
+        for i in raft_node.log:
+            print(i)
+        for(i, j) in raft_node.data.items():
+            print(f"Key: {i}, Value: {j}")
 

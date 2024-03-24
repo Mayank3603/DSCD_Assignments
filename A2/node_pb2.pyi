@@ -5,6 +5,22 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class LogReplicationRequest(_message.Message):
+    __slots__ = ("node_id", "last_log_index", "last_log_term")
+    NODE_ID_FIELD_NUMBER: _ClassVar[int]
+    LAST_LOG_INDEX_FIELD_NUMBER: _ClassVar[int]
+    LAST_LOG_TERM_FIELD_NUMBER: _ClassVar[int]
+    node_id: int
+    last_log_index: int
+    last_log_term: int
+    def __init__(self, node_id: _Optional[int] = ..., last_log_index: _Optional[int] = ..., last_log_term: _Optional[int] = ...) -> None: ...
+
+class LogReplicationResponse(_message.Message):
+    __slots__ = ("log_entries",)
+    LOG_ENTRIES_FIELD_NUMBER: _ClassVar[int]
+    log_entries: _containers.RepeatedCompositeFieldContainer[LogEntry]
+    def __init__(self, log_entries: _Optional[_Iterable[_Union[LogEntry, _Mapping]]] = ...) -> None: ...
+
 class LogEntry(_message.Message):
     __slots__ = ("index", "term", "key", "operation", "value")
     INDEX_FIELD_NUMBER: _ClassVar[int]

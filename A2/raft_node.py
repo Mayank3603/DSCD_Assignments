@@ -20,6 +20,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.port = port
         self.node_ips = node_ips
         self.log_file = f"log_node_{node_id}.txt"
+        self.data = {}  # to store key-value data
         self.init_files()
         print(f"Election timer for node {node_id} is {self.election_timer} seconds.")
         self.start_election_timer()

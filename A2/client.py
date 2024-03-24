@@ -22,7 +22,10 @@ def main():
     leaderip=ips[0]
     client = RaftClient(leaderip)
 
-    serve_request = node_pb2.SetRequest(key="b", value="1")
+    key=input("Enter key:")
+    value=input("Enter value:")
+
+    serve_request = node_pb2.SetRequest(key=key, value=value)
     response = client.serve_set(serve_request)
     print("Set Response:", response)
     # serve_request = node_pb2.GetRequest(key="b")
