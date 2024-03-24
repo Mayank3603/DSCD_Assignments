@@ -21,17 +21,21 @@ def main():
     ips=['localhost:50051','localhost:50052','localhost:50053']
     leaderip=ips[0]
     client = RaftClient(leaderip)
+    while True:
+        op=input("Operation:")
+        if(op=="set"):
+            key=input("Enter key:")
+            value=input("Enter value:")
 
-    key=input("Enter key:")
-    value=input("Enter value:")
-
-    serve_request = node_pb2.SetRequest(key=key, value=value)
-    response = client.serve_set(serve_request)
-    print("Set Response:", response)
-    # serve_request = node_pb2.GetRequest(key="b")
-    # response = client.serve_get(serve_request)
-    # print("Get Response:", response)
-    
+            serve_request = node_pb2.SetRequest(key=key, value=value)
+            response = client.serve_set(serve_request)
+            print("Set Response:", response)
+        else:
+            key=input("Enter key:")
+            serve_request = node_pb2.GetRequest(key=key)
+            response = client.serve_get(serve_request)
+            print("Get Response:", response.value)
+        
 
 if __name__ == "__main__":
     main()
