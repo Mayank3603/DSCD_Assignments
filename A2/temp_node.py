@@ -4,9 +4,10 @@ import node_pb2 as node
 import node_pb2_grpc
 import time
 import threading
+import random
 
 class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
-    def __init__(self, node_id, port, node_ips, lease_duration=10):
+    def __init__(self, node_id, port, node_ips, lease_duration=100):
         self.node_id = node_id
         self.currTerm = 0
         self.votedFor = None
@@ -17,17 +18,16 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.votesReceived = set()
         self.sentLength = {}
         self.ackedLength = {}
-        self.lease_duration = lease_duration
+        self.lease_duration = 0
         # self.lease_timer = None
-        self.election_timer = node_id * 4
+        self.election_timer = random.randint(5,10)
         self.heartbeat_interval = 1
         self.ip = "localhost"
         self.port = port
         self.node_ip = f"localhost:{port}"
         self.node_ips = node_ips
         self.data = {}
-        # self.oldLeaseWaitTimer=0
-        
+
         self.election_timer_thread = threading.Thread(target=self.run_election_timer)
         self.election_timer_thread.daemon = True
         self.election_timer_thread.start()
@@ -54,7 +54,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             print(f"Node {self.node_id} Lease Duration: {self.lease_duration} seconds.")
         if(self.lease_duration == 0):
             self.become_follower()
-            self.start_election()
+            # self.start_election()
 
     def become_follower(self):
         self.currRole = "Follower"
@@ -76,7 +76,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 response = stub.ReplicateLogs(request)
 
                 for log_entry in response.log_entries:
-                    print(log_entry.index, len(self.log))
+                    # print(log_entry.index, len(self.log))
                     if log_entry.index >= len(self.log):
                         self.log.extend([None] * (log_entry.index - len(self.log) + 1))
                     if self.log[log_entry.index] is None or self.log[log_entry.index]['term'] != log_entry.term:
@@ -84,7 +84,8 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                             'term': log_entry.term,
                             'key': log_entry.key,
                             'operation': log_entry.operation,
-                            'value': log_entry.value
+                            'value': log_entry.value,
+                            'index': log_entry.index
                         }
                 print(f"Node {self.node_id} logs updated successfully.")
             except Exception as e:
@@ -128,6 +129,9 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         self.currTerm += 1
         self.currRole = "Candidate"
         self.votedFor = self.node_id
+        with open(f"logs_node_{self.node_id}/metadata.txt", "w") as f:
+            f.write(f"Current Term: {self.currTerm}\n Commit Lengt: {self.commitLength}\n VotedFor: {self.votedFor}\n")
+        f.close()
         self.votesReceived.add(self.node_id)
         self.lastTerm = self.log[-1].get('term', 0) if self.log else 0
         temp=0
@@ -147,7 +151,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                     continue
 
         self.check_votes(temp)
-        self.election_timer = self.node_id * 4 
+        self.election_timer = random.randint(5,10)
         self.start_election_timer()
 
     def check_votes(self, oldLeaseWaitTimer):
@@ -196,7 +200,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                     print(
                         f"Node {self.node_id} failed to send or receive heartbeat to/from Node {follower}. Error: {e}")
                     continue
-        self.election_timer = self.node_id * 4
+        self.election_timer = random.randint(5,10)
 
     def AppendEntries(self, request, context):
             print(f"Node {self.node_id} received AppendEntries RPC from Node {request.leader_id}.")
@@ -210,7 +214,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 if len(request.entries) > 0:
                     for entry in request.entries:
                         self.apply_entry(entry)
-            
+        
             if self.currRole == "Leader":
                 self.restart_lease_timer()
 
@@ -219,8 +223,11 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             
             if request.leader_commit > self.commitLength:
                 self.commitLength = min(request.leader_commit, len(self.log))
+                with open (f"logs_node_{self.node_id}/metadata.txt", "w") as f:
+                    f.write(f"Current Term: {self.currTerm}\n Commit Length: {self.commitLength}\n VotedFor: {self.votedFor}\n")
+                f.close()
                 self.commit_log_entries()
-            self.election_timer = self.node_id * 4
+            self.election_timer = random.randint(5,10)
             return response
 
     def RequestVote(self, request, context):
@@ -231,9 +238,13 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             lastTerm = self.log[-1].get('term', 0) if self.log else 0
             logOk = (request.last_log_term > lastTerm) or \
                     (request.last_log_term == lastTerm and request.last_log_index >= len(self.log) - 1)
-            print(f"Node {self.node_id} logOk: {logOk}")
+            # print(f"Node {self.node_id} logOk: {logOk}")
             if request.term == self.currTerm and logOk and self.votedFor in {request.candidate_id, None}:
                 self.votedFor = request.candidate_id
+                # self.meta_file.write(f"Current Term: {self.currTerm}\n Commit Length{self.commitLength}\n VotedFor: {self.votedFor}\n")
+                with open(f"logs_node_{self.node_id}/metadata.txt", "w") as f:
+                    f.write(f"Current Term: {self.currTerm}\n Commit Length: {self.commitLength}\n VotedFor: {self.votedFor}\n")
+                f.close()
                 print(f"Node {self.node_id} voted for Node {request.candidate_id} for term {request.term}.")
                 return node.RequestVoteResponse(term=self.currTerm, vote_granted=True, lease_duration=self.lease_duration)
             else:
@@ -244,8 +255,19 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         if entry.operation == "GET":
             value = self.get(entry.key)
         elif entry.operation == "SET":
-            self.log.append({'term': entry.term, 'operation': entry.operation, 'key': entry.key, 'value': entry.value})
-            print(f"Node {self.node_id} added SET operation to log for key: {entry.key}, value: {entry.value}")
+            self.log.append({'term': entry.term, 'operation': entry.operation, 'key': entry.key, 'value': entry.value, 'index': len(self.log)})
+            # self.log_file.write(f"SET {entry.key} {entry.value} {entry.term}\n")
+            with open(f"logs_node_{self.node_id}/logs.txt", "a") as f:
+                f.write(f"SET {entry.key} {entry.value} {entry.term}\n")
+            f.close()
+            print(f"Node {self.node_id} added SET operation to log for key: {entry.key}, value: {entry.value}, index: {len(self.log)}") 
+        else :
+            self.log.append({'term': entry.term, 'operation': entry.operation, 'key': entry.key, 'value': entry.value, 'index': len(self.log)})
+            # self.log_file.write(f"NO-OP {entry.term}\n")
+            with open(f"logs_node_{self.node_id}/logs.txt", "a") as f:
+                f.write(f"NO-OP {entry.term}\n")
+            f.close()
+            print(f"Node {self.node_id} added NO-OP operation to log for key: {entry.key}, value: {entry.value}, index: {len(self.log)}")
 
     def commit_log_entries(self):
         for i in range(self.commitLength):
@@ -267,6 +289,10 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
         value = request.value
         log_entry = {'term': self.currTerm, 'operation': "SET", 'key': key, 'value': value, 'index': len(self.log)} #commit later?
         self.log.append(log_entry)
+        # self.log_file.write(f"SET {key} {value} {self.currTerm}\n")
+        with open(f"logs_node_{self.node_id}/logs.txt", "a") as f:
+            f.write(f"SET {key} {value} {self.currTerm}\n")
+        f.close()
 
         print(f"Node {self.node_id} added SET operation to log for key: {key}, value: {value}")
         
@@ -299,6 +325,10 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 self.ackedLength[follower_id] = self.sentLength[follower_id]
                 self.data[log_entry['key']] = log_entry['value']
                 self.commitLength += 1
+                # self.meta_file.write(f"Current Term: {self.currTerm}\n Commit Length{self.commitLength}\n VotedFor: {self.votedFor}\n")
+                with open(f"logs_node_{self.node_id}/metadata.txt", "w") as f:
+                    f.write(f"Current Term: {self.currTerm}\n Commit Length: {self.commitLength}\n VotedFor: {self.votedFor}\n")
+                f.close()
         except Exception as e:
             print(
                 f"Node {self.node_id} failed to send or receive AppendEntries RPC to/from Node {follower_id}. Error: {e}")
@@ -307,45 +337,60 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
     def become_leader(self):
         self.currRole = "Leader"
         self.currLeader = self.node_id
+        self.lease_duration = 10
         print(f"Node {self.node_id} became Leader for term {self.currTerm}.")
         self.start_heartbeat_thread()
-        self.lease_duration = 10
+        log_entry = {'term': self.currTerm, 'operation': "NO-OP", 'key': "", 'value': "", 'index': len(self.log)}
+        # self.log_file.write(f"NO-OP {self.currTerm}\n")
+        with open(f"logs_node_{self.node_id}/logs.txt", "a") as f:
+            f.write(f"NO-OP {self.currTerm}\n")
+        f.close()
+        self.log.append(log_entry)
         for follower in self.node_ips.values():
             if follower != self.node_ip:
                 self.sentLength[follower] = len(self.log)
                 self.ackedLength[follower] = 0
-                #self.replicate_log(0, self.commitLength, self.log)
+                self.sentLength[follower] = len(self.log)
+                self.ackedLength[follower] = 0
+
+                channel = grpc.insecure_channel(follower)
+                stub = node_pb2_grpc.RaftServiceStub(channel)
+                prev_log_index = self.sentLength.get(follower, 0) - 1
+                prev_log_term = self.log[prev_log_index]['term'] if prev_log_index >= 0 else 0
+                log_entry = {'term': self.currTerm, 'operation': "NO-OP", 'key': "", 'value': "",'index': len(self.log)}
+
+
+                request = node.AppendEntriesRequest(
+                    term=self.currTerm,
+                    leader_id=self.node_id,
+                    prev_log_index=prev_log_index,
+                    prev_log_term=prev_log_term,
+                    entries=[log_entry],
+                    leader_commit=self.commitLength,
+                    lease_duration=self.lease_duration
+                )
+                response = stub.AppendEntries(request)
+                print(f"Node {self.node_id} received AppendEntriesResponse RPC from Node {follower}.")
 
     def transition_to_follower(self, term):
         self.currTerm = term
         self.currRole = "Follower"
         self.votedFor = None
-        #self.replicate_log(0, self.commitLength, self.log)
+        # self.meta_file.write(f"Current Term: {self.currTerm}\n Commit Length{self.commitLength}\n VotedFor: {self.votedFor}\n")
+        with open(f"logs_node_{self.node_id}/metadata.txt", "w") as f:
+            f.write(f"Current Term: {self.currTerm}\n Commit Length: {self.commitLength}\n VotedFor: {self.votedFor}\n")
+        f.close()
 
-    # def replicate_log(self, prefixLen, leaderCommit, suffix):
-    #     if suffix and len(suffix) > 0 and len(self.log) > prefixLen:
-    #         index = min(len(self.log), prefixLen + len(suffix)) - 1
-    #         if self.log[index]['term'] == suffix[index - prefixLen]['term']:
-    #             self.log = self.log[:prefixLen]
-    #             # print(f"Node {self.node_id} replicated log: {self.log}")
-        
-    #     if prefixLen + len(suffix) > len(self.log):
+    # def __del__(self):
+    #     self.log_file.close()
+    #     self.meta_file.close()
+    #     self.dump_file.close()
 
-    #         for i in range(len(self.log) - prefixLen, len(suffix)):
-    #             print("Suffix: ",suffix[i])
-    #             self.log.append(suffix[i])
-    #             # print(f"Node {self.node_id} replicated log: {self.log}")
-        
-    #     if leaderCommit > self.commitLength:
-    #         for i in range(self.commitLength, leaderCommit):
-    #             # Deliver log[i].msg to the application (not implemented here)
-    #             pass
-    #         self.commitLength = leaderCommit
 
 if  __name__ == '__main__':
     node_id = int(input("Enter the node id: "))
     port = int(input("Enter the port number: "))
-    node_ips = {1:'localhost:50051', 2:'localhost:50052'}
+    node_ips = {1:'localhost:50051', 2:'localhost:50052', 3:'localhost:50053'}
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     raft_node = RaftNodeImplementation(node_id, port, node_ips)
@@ -353,10 +398,10 @@ if  __name__ == '__main__':
     server.add_insecure_port(f'[::]:{port}')
     server.start()
 
+    if raft_node.currRole == "Follower" and raft_node.currLeader is not None:
+        raft_node.updateLogs()
     while True:
         time.sleep(5)
-        if raft_node.currRole == "Follower" and raft_node.currLeader is not None:
-            raft_node.updateLogs()
         print(f"Node {node_id} is {raft_node.currRole} for term {raft_node.currTerm}.")
         print("Logs: ")
         for i in raft_node.log:

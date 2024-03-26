@@ -1,0 +1,3 @@
+giCurrent Term: 2
+ Commit Length: 4
+ VotedFor: 1
