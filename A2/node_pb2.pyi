@@ -115,9 +115,9 @@ class ServeClientReply(_message.Message):
     LEADERID_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     Data: str
-    LeaderID: str
-    Success: bool
-    def __init__(self, Data: _Optional[str] = ..., LeaderID: _Optional[str] = ..., Success: bool = ...) -> None: ...
+    LeaderID: int
+    Success: str
+    def __init__(self, Data: _Optional[str] = ..., LeaderID: _Optional[int] = ..., Success: _Optional[str] = ...) -> None: ...
 
 class RecoverRequest(_message.Message):
     __slots__ = ("NodeId",)

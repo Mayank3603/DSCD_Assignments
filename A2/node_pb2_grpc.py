@@ -27,12 +27,12 @@ class RaftServiceStub(object):
         self.ServeGet = channel.unary_unary(
                 '/RaftService/ServeGet',
                 request_serializer=node__pb2.GetRequest.SerializeToString,
-                response_deserializer=node__pb2.GetReply.FromString,
+                response_deserializer=node__pb2.ServeClientReply.FromString,
                 )
         self.ServeSet = channel.unary_unary(
                 '/RaftService/ServeSet',
                 request_serializer=node__pb2.SetRequest.SerializeToString,
-                response_deserializer=node__pb2.SetReply.FromString,
+                response_deserializer=node__pb2.ServeClientReply.FromString,
                 )
         self.Recovery = channel.unary_unary(
                 '/RaftService/Recovery',
@@ -101,12 +101,12 @@ def add_RaftServiceServicer_to_server(servicer, server):
             'ServeGet': grpc.unary_unary_rpc_method_handler(
                     servicer.ServeGet,
                     request_deserializer=node__pb2.GetRequest.FromString,
-                    response_serializer=node__pb2.GetReply.SerializeToString,
+                    response_serializer=node__pb2.ServeClientReply.SerializeToString,
             ),
             'ServeSet': grpc.unary_unary_rpc_method_handler(
                     servicer.ServeSet,
                     request_deserializer=node__pb2.SetRequest.FromString,
-                    response_serializer=node__pb2.SetReply.SerializeToString,
+                    response_serializer=node__pb2.ServeClientReply.SerializeToString,
             ),
             'Recovery': grpc.unary_unary_rpc_method_handler(
                     servicer.Recovery,
@@ -175,7 +175,7 @@ class RaftService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/RaftService/ServeGet',
             node__pb2.GetRequest.SerializeToString,
-            node__pb2.GetReply.FromString,
+            node__pb2.ServeClientReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -192,7 +192,7 @@ class RaftService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/RaftService/ServeSet',
             node__pb2.SetRequest.SerializeToString,
-            node__pb2.SetReply.FromString,
+            node__pb2.ServeClientReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
