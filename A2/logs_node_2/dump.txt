@@ -1,1 +1,67 @@
-Vote granted for Node 1 in term 1.Node 2 election timer timed out, Starting election.Vote denied for Node 3 in term 2.Node 2 election timer timed out, Starting election.Vote denied for Node 3 in term 3.Vote granted for Node 1 in term 4.Leader 2 lease renewal failed. Stepping Down.2 Stepping downNode 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Leader 2 lease renewal failed. Stepping Down.2 Stepping downNode 2 election timer timed out, Starting election.New Leader waiting for Old Leader Lease to timeout.Node 2 became the leader for term 5.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Error occurred while sending RPC to Node localhost:50051.Error occurred while sending RPC to Node localhost:50053.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Vote denied for Node 1 in term 6.Node 2 election timer timed out, Starting election.New Leader waiting for Old Leader Lease to timeout.Vote denied for Node 3 in term 8.Leader 2 lease renewal failed. Stepping Down.2 Stepping downLeader 2 lease renewal failed. Stepping Down.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.2 Stepping downNode 2 became the leader for term 8.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Error occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Vote granted for Node 1 in term 9.Node 2 election timer timed out, Starting election.New Leader waiting for Old Leader Lease to timeout.Leader 2 lease renewal failed. Stepping Down.2 Stepping downLeader 2 lease renewal failed. Stepping Down.Node 2 rejected AppendEntries RPC from 1.2 Stepping downNode 2 became the leader for term 10.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Error occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Vote granted for Node 1 in term 11.Leader 2 lease renewal failed. Stepping Down.2 Stepping downLeader 2 lease renewal failed. Stepping Down.Node 2 rejected AppendEntries RPC from 1.2 Stepping downNode 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Node 2 rejected AppendEntries RPC from 1.Leader 2 lease renewal failed. Stepping Down.2 Stepping downNode 2 election timer timed out, Starting election.New Leader waiting for Old Leader Lease to timeout.Vote denied for Node 3 in term 12.Node 2 became the leader for term 12.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Error occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Vote denied for Node 1 in term 13.Vote denied for Node 3 in term 14.Leader 2 lease renewal failed. Stepping Down.2 Stepping downNode 2 election timer timed out, Starting election.New Leader waiting for Old Leader Lease to timeout.Node 2 became the leader for term 15.Leader 2 sending heartbeat & Renewing LeaseError occurred while sending RPC to Node localhost:50051.Node 2 election timer timed out, Starting election.New Leader waiting for Old Leader Lease to timeout.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Leader 2 lease renewal failed. Stepping Down.
+2 Stepping down.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 (follower) committed the entry SET to the state machine.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 (follower) committed the entry SET to the state machine.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 (follower) committed the entry SET to the state machine.
+Node 2 accepted AppendEntries RPC from 1.
+Node 2 (follower) committed the entry SET to the state machine.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Leader 2 lease renewal failed. Stepping Down.
+2 Stepping down.
+Node 2 election timer timed out, Starting election.
+Error occurred while sending RPC to Node localhost:50051.
+Error occurred while sending RPC to Node localhost:50053.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.
+Node 2 election timer timed out, Starting election.

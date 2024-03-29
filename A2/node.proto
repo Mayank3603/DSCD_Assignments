@@ -46,22 +46,12 @@ message RequestVoteResponse {
   int32 lease_duration = 5;
 }
 
-message GetRequest {
-  string key = 1;
+
+message ServeClientArgs {
+  string Request = 1;
 }
 
-message SetRequest {
-  string key = 1;
-  string value = 2;
-}
 
-message GetReply {
-  string value = 1;
-}
-
-message SetReply {
-  string Success = 1;
-}
 
 message ServeClientReply {
   string Data = 1;
@@ -82,8 +72,7 @@ message RecoverReply {
 service RaftService {
   rpc AppendEntries(AppendEntriesRequest) returns (AppendEntriesResponse);
   rpc RequestVote(RequestVoteRequest) returns (RequestVoteResponse);
-  rpc ServeGet(GetRequest) returns (ServeClientReply);
-  rpc ServeSet(SetRequest) returns (ServeClientReply);
+  rpc ServeClient(ServeClientArgs) returns (ServeClientReply);
 
   rpc Recovery(RecoverRequest) returns (RecoverReply);
   rpc ReplicateLogs(LogReplicationRequest) returns (LogReplicationResponse); 

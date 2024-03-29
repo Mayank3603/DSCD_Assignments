@@ -83,31 +83,11 @@ class RequestVoteResponse(_message.Message):
     lease_duration: int
     def __init__(self, term: _Optional[int] = ..., vote_granted: bool = ..., lease_duration: _Optional[int] = ...) -> None: ...
 
-class GetRequest(_message.Message):
-    __slots__ = ("key",)
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    key: str
-    def __init__(self, key: _Optional[str] = ...) -> None: ...
-
-class SetRequest(_message.Message):
-    __slots__ = ("key", "value")
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    VALUE_FIELD_NUMBER: _ClassVar[int]
-    key: str
-    value: str
-    def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
-
-class GetReply(_message.Message):
-    __slots__ = ("value",)
-    VALUE_FIELD_NUMBER: _ClassVar[int]
-    value: str
-    def __init__(self, value: _Optional[str] = ...) -> None: ...
-
-class SetReply(_message.Message):
-    __slots__ = ("Success",)
-    SUCCESS_FIELD_NUMBER: _ClassVar[int]
-    Success: str
-    def __init__(self, Success: _Optional[str] = ...) -> None: ...
+class ServeClientArgs(_message.Message):
+    __slots__ = ("Request",)
+    REQUEST_FIELD_NUMBER: _ClassVar[int]
+    Request: str
+    def __init__(self, Request: _Optional[str] = ...) -> None: ...
 
 class ServeClientReply(_message.Message):
     __slots__ = ("Data", "LeaderID", "Success")

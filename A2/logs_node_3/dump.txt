@@ -1,1 +1,79 @@
-Vote granted for Node 1 in term 1.Node 3 election timer timed out, Starting election.Vote denied for Node 2 in term 2.Node 3 election timer timed out, Starting election.Vote denied for Node 2 in term 3.Vote granted for Node 1 in term 4.Node 3 rejected AppendEntries RPC from 1.Leader 3 lease renewal failed. Stepping Down.Node 3 rejected AppendEntries RPC from 1.3 Stepping downNode 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Leader 3 lease renewal failed. Stepping Down.3 Stepping downVote granted for Node 2 in term 5.Leader 3 lease renewal failed. Stepping Down.Node 3 rejected AppendEntries RPC from 2.3 Stepping downNode 3 rejected AppendEntries RPC from 2.Vote granted for Node 1 in term 6.Vote granted for Node 2 in term 7.Node 3 election timer timed out, Starting election.Leader 3 lease renewal failed. Stepping Down.3 Stepping downNode 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Vote granted for Node 1 in term 9.Vote granted for Node 2 in term 10.Leader 3 lease renewal failed. Stepping Down.3 Stepping downNode 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Vote granted for Node 1 in term 11.Leader 3 lease renewal failed. Stepping Down.3 Stepping downNode 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Leader 3 lease renewal failed. Stepping Down.3 Stepping downNode 3 election timer timed out, Starting election.Vote denied for Node 2 in term 12.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Leader 3 lease renewal failed. Stepping Down.3 Stepping downNode 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Vote granted for Node 1 in term 13.Node 3 election timer timed out, Starting election.Leader 3 lease renewal failed. Stepping Down.3 Stepping downVote granted for Node 2 in term 15.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 2.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Node 3 rejected AppendEntries RPC from 1.Vote granted for Node 2 in term 16.
+Vote granted for Node 1 in term 1.
+Leader 3 lease renewal failed. Stepping Down.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+3 Stepping down.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 accepted AppendEntries RPC from 1.
+Node 3 (follower) committed the entry SET to the state machine.
+Node 3 (follower) committed the entry SET to the state machine.

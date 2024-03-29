@@ -1,5 +1,5 @@
-NO-OP @@@@ 4
-NO-OP @@@@ 8
-NO-OP @@@@ 10
-NO-OP @@@@ 11
-NO-OP @@@@ 15
+NO-OP @@@@ 1
+SET %$ $ 1
+SET ^ % 1
+NO-OP @@@@ 2
+SET 3 4 2

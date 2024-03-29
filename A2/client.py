@@ -3,58 +3,57 @@ import node_pb2
 import node_pb2_grpc
 
 class RaftClient:
-    def __init__(self, server_address):
-        self.channel = grpc.insecure_channel(server_address)
-        self.stub = node_pb2_grpc.RaftServiceStub(self.channel)
-        self.currLeaderAddr=server_address
+    def __init__(self, server_addresses):
+        self.server_addresses = server_addresses
+        self.curr_index = 0
+        self.channel = None
+        self.stub = None
 
-    def serve_get(self, request):
-        response = self.stub.ServeGet(request)
-        return response
+    def connect_to_next_node(self):
+        if self.channel:
+            self.channel.close()
+        self.curr_index = (self.curr_index + 1) % len(self.server_addresses)
 
-    def serve_set(self, request):
-        response = self.stub.ServeSet(request)
-        return response
-
-
+    def serve_client(self, request):
+        while True:
+            try:
+                # if not self.stub:
+                #     self.connect_to_next_node()
+                #     continue
+                print("Sending request to:", self.server_addresses[self.curr_index])
+                self.channel = grpc.insecure_channel(self.server_addresses[self.curr_index])
+                self.stub = node_pb2_grpc.RaftServiceStub(self.channel)
+                print("Trying to connect to:", self.server_addresses[self.curr_index])
+                response = self.stub.ServeClient(request)
+                return response
+            except KeyboardInterrupt:
+                print("KeyboardInterrupt, Exiting...")
+                exit(0)
+            except:
+                print("Connection failed, trying next node")
+                self.connect_to_next_node()
 
 def main():
-    node_ips = {1:'localhost:50051', 2:'localhost:50052', 3:'localhost:50053'}
-    leaderip=node_ips[1]
-    client = RaftClient(leaderip)
+    node_ips = ['localhost:50051', 'localhost:50052', 'localhost:50053']
+    client = RaftClient(node_ips)
+    
     while True:
-        op=input("Operation:")
-        if(op=="set"):
-            key=input("Enter key:")
-            value=input("Enter value:")
-            try:
-                serve_request = node_pb2.SetRequest(key=key, value=value)
-                response = client.serve_set(serve_request)
-                if(response.Success=="False"):
-                    if(response.LeaderID==-1):
-                        print("No leader found")
-                        continue
-                    client.currLeaderAddr=ips[response.LeaderID]
-                    print("Leader changed to:",client.currLeaderAddr)
-
-                print("Set Response:", response)
-            except:
-                print("No current active node found")
-        else:
-            try:
-                key=input("Enter key:")
-                serve_request = node_pb2.GetRequest(key=key)
-                response = client.serve_get(serve_request)
-                print("Get Response:", response.value)
-                if(response.success=="False"):
-                    if(response.LeaderID==-1):
-                        print("No leader found")
-                        continue
-                    client.currLeaderAddr=ips[response.LeaderID]
-                    print("Leader changed to:",client.currLeaderAddr)
-            except:
-                print("No current active node found")
+        request=input("Enter Request: ")
+        serve_request = node_pb2.ServeClientArgs(Request=request)
         
+        response = client.serve_client(serve_request)
+
+        
+        if response:
+            if response.Success == "False" and response.LeaderID != -1:
+                print(response.LeaderID, client.curr_index)
+                print("Leader changed to:", node_ips[response.LeaderID - 1])
+                client.curr_index = response.LeaderID - 1
+            if response.Success == "False" and response.LeaderID == -1:
+                print("No leader found")
+            print("Status:", response.Success, "Data:", response.Data,"Current Leader:",response.LeaderID)
+        else:
+            print("No current active node found")
 
 if __name__ == "__main__":
     main()
