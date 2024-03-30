@@ -1,7 +1,17 @@
 Node 1 election timer timed out, Starting election.
+Vote denied for Node 2 in term 1.
+Error occurred while sending RPC to Node localhost:50055.
 New Leader waiting for Old Leader Lease to timeout.
 Node 1 became the leader for term 1.
 Leader 1 sending heartbeat & Renewing Lease.
+Error occurred while sending RPC to Node localhost:50055.
+Error occurred while sending RPC to Node localhost:50055.
+Leader 1 sending heartbeat & Renewing Lease.
+Error occurred while sending RPC to Node localhost:50055.
+Leader 1 sending heartbeat & Renewing Lease.
+Error occurred while sending RPC to Node localhost:50055.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
@@ -13,9 +23,17 @@ Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
 Node 1 (leader) received an SET request.
 Node 1 (leader) committed the entry SET to the state machine.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Node 1 (leader) received an SET request.
 Node 1 (leader) committed the entry SET to the state machine.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Node 1 (leader) received an GET request.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
@@ -25,7 +43,16 @@ Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
 Node 1 (leader) received an SET request.
 Node 1 (leader) committed the entry SET to the state machine.
-Node 1 (leader) committed the entry SET to the state machine.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Node 1 (leader) received an GET request.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Node 1 (leader) received an GET request.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
@@ -40,101 +67,60 @@ Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.
+Error occurred while sending RPC to Node localhost:50055.
 Leader 1 sending heartbeat & Renewing Lease.
-Leader 1 sending heartbeat & Renewing Lease.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50052.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50052.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50052.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50052.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50052.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50052.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Leader 1 lease renewal failed. Stepping Down.
-1 Stepping down.
-Error occurred while sending RPC to Node localhost:50052.
-Error occurred while sending RPC to Node localhost:50053.
-Node 1 election timer timed out, Starting election.
-Error occurred while sending RPC to Node localhost:50052.
-Error occurred while sending RPC to Node localhost:50053.
-New Leader waiting for Old Leader Lease to timeout.
-Node 1 became the leader for term 2.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
-Leader 1 sending heartbeat & Renewing Lease.
+Error occurred while sending RPC to Node localhost:50055.
 Node 1 (leader) received an SET request.
+Leader 1 sending heartbeat & Renewing Lease.
+Error occurred while sending RPC to Node localhost:50055.
+Error occurred while sending RPC to Node localhost:50055.
 Node 1 (leader) committed the entry SET to the state machine.
-Error occurred while sending RPC to Node localhost:50053.
-Error occurred while sending RPC to Node localhost:50053.
 Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
+Error occurred while sending RPC to Node localhost:50055.
+Node 1 (leader) received an GET request.
 Leader 1 sending heartbeat & Renewing Lease.
-Error occurred while sending RPC to Node localhost:50053.
+Error occurred while sending RPC to Node localhost:50055.
+Leader 1 sending heartbeat & Renewing Lease.
+Error occurred while sending RPC to Node localhost:50055.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
+Leader 1 sending heartbeat & Renewing Lease.
 Leader 1 sending heartbeat & Renewing Lease.

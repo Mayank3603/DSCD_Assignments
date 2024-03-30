@@ -34,7 +34,7 @@ class RaftClient:
                 self.connect_to_next_node()
 
 def main():
-    node_ips = ['localhost:50051', 'localhost:50052', 'localhost:50053']
+    node_ips = ['localhost:50051', 'localhost:50052', 'localhost:50053', 'localhost:50054', 'localhost:50055']
     client = RaftClient(node_ips)
     
     while True:
