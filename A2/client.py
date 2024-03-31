@@ -8,18 +8,17 @@ class RaftClient:
         self.curr_index = 0
         self.channel = None
         self.stub = None
+        
 
     def connect_to_next_node(self):
         if self.channel:
             self.channel.close()
         self.curr_index = (self.curr_index + 1) % len(self.server_addresses)
 
-    def serve_client(self, request):
-        while True:
+    def serve_client(self, request, max_retries=9):
+        retries = 0
+        while retries < max_retries:
             try:
-                # if not self.stub:
-                #     self.connect_to_next_node()
-                #     continue
                 print("Sending request to:", self.server_addresses[self.curr_index])
                 self.channel = grpc.insecure_channel(self.server_addresses[self.curr_index])
                 self.stub = node_pb2_grpc.RaftServiceStub(self.channel)
@@ -32,6 +31,9 @@ class RaftClient:
             except:
                 print("Connection failed, trying next node")
                 self.connect_to_next_node()
+                retries += 1
+        print("Maximum retries reached. Exiting...")
+
 
 def main():
     node_ips = ['localhost:50051', 'localhost:50052', 'localhost:50053', 'localhost:50054', 'localhost:50055']

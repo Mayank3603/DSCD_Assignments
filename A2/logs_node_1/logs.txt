@@ -1,5 +1,0 @@
-NO-OP @@@@ 1
-SET 3 5 1
-SET 3 6 1
-SET 4 8 1
-SET Q W 1

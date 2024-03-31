@@ -266,6 +266,25 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                     if response.currTerm > self.currTerm:
                         self.transition_to_follower(response.currTerm)
                         return 
+
+                    elif response.success=="False" and response.currTerm==self.currTerm and self.currRole=="Leader" and self.lease_duration==0 and self.sentLength[follower]>0:
+                        if dump_log_repl()==False :
+                            continue
+                        #send request for updating logs here
+                        channel = grpc.insecure_channel(follower)
+                        stub = node_pb2_grpc.RaftServiceStub(channel)
+                        prev_log_index = self.sentLength.get(follower, 0) - 1
+                        prev_log_term = self.log[prev_log_index].get('term', 0) if prev_log_index >= 0 else 0
+                        request = node.AppendEntriesRequest(
+                            term=self.currTerm,
+                            leader_id=self.node_id,
+                            prev_log_index=prev_log_index,
+                            prev_log_term=prev_log_term,
+                            entries=self.log,
+                            leader_commit=self.commitLength,
+                            lease_duration=self.lease_duration
+                        )
+                        response=stub.AppendEntries(request)
                 except Exception as e:
                     print(f"Node {self.node_id} failed to send or receive heartbeat to/from Node {follower}.")
                     with open(f"logs_node_{self.node_id}/dump.txt", "a") as f:
@@ -321,6 +340,20 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                 self.commit_log_entries()
             self.election_timer = random.randint(5,10)
             return response
+
+        elif (self.logs_updated==-1):
+            self.log=request.log
+           
+            for log_entry in self.log:
+                if(log_entry.operation=="SET"):
+                    with open(f"logs_node_{self.node_id}/logs.txt", "a") as f:
+                        f.write(f"{self.log[log_entry.index]['operation']} {self.log[log_entry.index]['key']} {self.log[log_entry.index]['value']} {self.log[log_entry.index]['term']}\n")
+                    f.close()
+                else:
+                    with open(f"logs_node_{self.node_id}/logs.txt", "a") as f:
+                        f.write(f"{self.log[log_entry.index]['operation']} {self.log[log_entry.index]['term']}\n")
+                    f.close()
+            self.logs_updated=2
 
         else: 
             response = node.AppendEntriesResponse(currTerm=self.currTerm, success="False")
@@ -403,7 +436,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             print(f"Node {self.node_id} added NO-OP operation to log for key: {entry.key}, value: {entry.value}, index: {len(self.log)}")
 
     def commit_log_entries(self):
-        for i in range(self.commitLength):
+        for i in range(len(self.log)):
             entry = self.log[i]
             if entry['operation'] == "SET":
                 self.data[entry['key']] = entry['value']
@@ -570,7 +603,8 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
             f.write(f"Current Term: {self.currTerm}\nCommit Length: {self.commitLength}\nVotedFor: {self.votedFor}\n")
         f.close()
 
-
+    def dump_log_repl(self):
+        return False
 
     def recover(self):
         try:
@@ -626,7 +660,7 @@ if  __name__ == '__main__':
     server.add_insecure_port(f'[::]:{port}')
     server.start()
 
-    raft_node.reset_all_files()
+    # raft_node.reset_all_files()
     raft_node.recover()
 
    
