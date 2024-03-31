@@ -300,7 +300,9 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
 
     def AppendEntries(self, request, context):
         print(f"Node {self.node_id} received AppendEntries RPC from Node {request.leader_id}.")
-        print(request.prev_log_index, len(self.log), request.prev_log_term, self.currTerm)
+        if request.term > self.currTerm:
+            self.currTerm = term
+            self.currRole = "Follower"
         
         self.currLeader = request.leader_id
         if self.currRole == "Leader":
@@ -354,6 +356,14 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
                         f.write(f"{self.log[log_entry.index]['operation']} {self.log[log_entry.index]['term']}\n")
                     f.close()
             self.logs_updated=2
+    
+        elif (len(self.log)<request.prev_log_index and self.log[request.prev_log_index]['term']!=request.prev_log_term):
+            self.updateLogs()
+            self.currTerm = request.term
+            self.currRole = "Follower"
+            self.votedFor = None
+            response = node.AppendEntriesResponse(currTerm=self.currTerm, success="True")
+            return response
 
         else: 
             response = node.AppendEntriesResponse(currTerm=self.currTerm, success="False")
@@ -560,9 +570,9 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
 
         self.log.append(log_entry)
         for follower in self.node_ips.values():
-            print(f"follower: {follower}")
+
             if follower != self.node_ip:
-                print(follower, self.node_ip)
+
                 self.sentLength[follower] = len(self.log)
                 self.ackedLength[follower] = 0
                 self.sentLength[follower] = len(self.log)
@@ -652,7 +662,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
 if  __name__ == '__main__':
     node_id = int(input("Enter the node id: "))
     # port = int(input("Enter the port number: "))
-    node_ips = {1:'localhost:50051', 2:'localhost:50052', 3:'localhost:50053', 4:'localhost:50054', 5:'localhost:50055'}
+    node_ips = {1:'34.71.129.15051', 2:'34.171.206.199', 3:'34.29.38.154', 4:'35.224.51.185', 5:'34.69.240.88'}
     port=int(node_ips[node_id].split(":")[1])
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     raft_node = RaftNodeImplementation(node_id, port, node_ips) 
@@ -660,13 +670,14 @@ if  __name__ == '__main__':
     server.add_insecure_port(f'[::]:{port}')
     server.start()
 
-    # raft_node.reset_all_files()
+
     raft_node.recover()
 
    
         
     while True:
         time.sleep(5)
+        print("---------------------------------------------------")
         print(f"Node {node_id} is {raft_node.currRole} for term {raft_node.currTerm}.")
         print("Logs: ")
         for i in raft_node.log:
@@ -676,4 +687,5 @@ if  __name__ == '__main__':
             print(f"Key: {i}, Value: {j}")
         print(f"Current Lease Duration: {raft_node.lease_duration} seconds.")
         print(f"Current Election Timer: {raft_node.election_timer} seconds.")
+        print("---------------------------------------------------")
 
