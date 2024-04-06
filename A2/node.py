@@ -662,7 +662,7 @@ class RaftNodeImplementation(node_pb2_grpc.RaftServiceServicer):
 if  __name__ == '__main__':
     node_id = int(input("Enter the node id: "))
     # port = int(input("Enter the port number: "))
-    node_ips = {1:'34.70.206.38:50051', 2:'34.42.135.156:50052', 3:'34.68.236.90:50053', 4:'34.68.156.161:50054', 5:'35.232.2.217:50055'}
+    node_ips = {1:'34.70.228.40:50051', 2:'35.193.190.224:50052', 3:'34.71.75.56:50053',4: '34.135.218.39:50054', 5:'35.226.130.79:50055'}
     port=int(node_ips[node_id].split(":")[1])
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     raft_node = RaftNodeImplementation(node_id, port, node_ips) 
