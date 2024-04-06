@@ -28,15 +28,15 @@ class RaftClient:
             except KeyboardInterrupt:
                 print("KeyboardInterrupt, Exiting...")
                 exit(0)
-            # except:
-            #     print("Connection failed, trying next node")
-            #     self.connect_to_next_node()
-            #     retries += 1
+            except:
+                print("Connection failed, trying next node")
+                self.connect_to_next_node()
+                retries += 1
         print("Maximum retries reached. Exiting...")
 
 
 def main():
-    node_ips = ['34.71.129.150:50051','34.171.206.199:50052','34.29.38.154:50053','35.224.51.185:50054','34.69.240.88:50055']
+    node_ips = ['34.70.206.38:50051', '34.42.135.156:50052', '34.68.236.90:50053', '34.68.156.161:50054', '35.232.2.217:50055']
     client = RaftClient(node_ips)
     
     while True:
