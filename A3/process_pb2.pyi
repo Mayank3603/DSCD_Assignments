@@ -5,21 +5,27 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class PointRange(_message.Message):
-    __slots__ = ("start", "end")
-    START_FIELD_NUMBER: _ClassVar[int]
-    END_FIELD_NUMBER: _ClassVar[int]
-    start: int
-    end: int
-    def __init__(self, start: _Optional[int] = ..., end: _Optional[int] = ...) -> None: ...
+class Point(_message.Message):
+    __slots__ = ("x", "y")
+    X_FIELD_NUMBER: _ClassVar[int]
+    Y_FIELD_NUMBER: _ClassVar[int]
+    x: float
+    y: float
+    def __init__(self, x: _Optional[float] = ..., y: _Optional[float] = ...) -> None: ...
 
 class MapPartitionRequest(_message.Message):
-    __slots__ = ("points", "numMappers")
-    POINTS_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("start", "end", "numMappers", "numReducers", "centroids")
+    START_FIELD_NUMBER: _ClassVar[int]
+    END_FIELD_NUMBER: _ClassVar[int]
     NUMMAPPERS_FIELD_NUMBER: _ClassVar[int]
-    points: _containers.RepeatedCompositeFieldContainer[PointRange]
+    NUMREDUCERS_FIELD_NUMBER: _ClassVar[int]
+    CENTROIDS_FIELD_NUMBER: _ClassVar[int]
+    start: int
+    end: int
     numMappers: int
-    def __init__(self, points: _Optional[_Iterable[_Union[PointRange, _Mapping]]] = ..., numMappers: _Optional[int] = ...) -> None: ...
+    numReducers: int
+    centroids: _containers.RepeatedCompositeFieldContainer[Point]
+    def __init__(self, start: _Optional[int] = ..., end: _Optional[int] = ..., numMappers: _Optional[int] = ..., numReducers: _Optional[int] = ..., centroids: _Optional[_Iterable[_Union[Point, _Mapping]]] = ...) -> None: ...
 
 class MapPartitionResponse(_message.Message):
     __slots__ = ()

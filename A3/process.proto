@@ -1,12 +1,15 @@
 syntax = "proto3";
 
-message PointRange {
-  int32 start = 1;
-  int32 end = 2;
+message Point {
+ float x =1;
+ float y =2;
 }
 message MapPartitionRequest {
-  repeated PointRange points = 1;
-  int32 numMappers=2;
+  int32 start = 1;
+  int32 end = 2;
+  int32 numMappers=3;
+  int32 numReducers =4;
+  repeated Point centroids =5;
 }
 
 
@@ -26,7 +29,7 @@ message GetInputDataResponse {
 }
 
 service MasterMapper {
-  rpc MapPartition (MapPartitionRequest) returns (MapPartitionResponse) {}
+  rpc Map (MapPartitionRequest) returns (MapPartitionResponse) {}
   rpc InvokeReducer (InvokeReducerRequest) returns (InvokeReducerResponse) {}
   rpc GetInputData (GetInputDataRequest) returns (GetInputDataResponse) {}
 }

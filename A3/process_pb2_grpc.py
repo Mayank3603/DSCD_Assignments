@@ -14,8 +14,8 @@ class MasterMapperStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.MapPartition = channel.unary_unary(
-                '/MasterMapper/MapPartition',
+        self.Map = channel.unary_unary(
+                '/MasterMapper/Map',
                 request_serializer=process__pb2.MapPartitionRequest.SerializeToString,
                 response_deserializer=process__pb2.MapPartitionResponse.FromString,
                 )
@@ -34,7 +34,7 @@ class MasterMapperStub(object):
 class MasterMapperServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def MapPartition(self, request, context):
+    def Map(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -55,8 +55,8 @@ class MasterMapperServicer(object):
 
 def add_MasterMapperServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'MapPartition': grpc.unary_unary_rpc_method_handler(
-                    servicer.MapPartition,
+            'Map': grpc.unary_unary_rpc_method_handler(
+                    servicer.Map,
                     request_deserializer=process__pb2.MapPartitionRequest.FromString,
                     response_serializer=process__pb2.MapPartitionResponse.SerializeToString,
             ),
@@ -81,7 +81,7 @@ class MasterMapper(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def MapPartition(request,
+    def Map(request,
             target,
             options=(),
             channel_credentials=None,
@@ -91,7 +91,7 @@ class MasterMapper(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/MasterMapper/MapPartition',
+        return grpc.experimental.unary_unary(request, target, '/MasterMapper/Map',
             process__pb2.MapPartitionRequest.SerializeToString,
             process__pb2.MapPartitionResponse.FromString,
             options, channel_credentials,
