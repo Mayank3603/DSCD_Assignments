@@ -19,10 +19,10 @@ class MasterMapperStub(object):
                 request_serializer=process__pb2.MapPartitionRequest.SerializeToString,
                 response_deserializer=process__pb2.MapPartitionResponse.FromString,
                 )
-        self.InvokeReducer = channel.unary_unary(
-                '/MasterMapper/InvokeReducer',
-                request_serializer=process__pb2.InvokeReducerRequest.SerializeToString,
-                response_deserializer=process__pb2.InvokeReducerResponse.FromString,
+        self.Reduce = channel.unary_unary(
+                '/MasterMapper/Reduce',
+                request_serializer=process__pb2.ReduceRequest.SerializeToString,
+                response_deserializer=process__pb2.ReduceResponse.FromString,
                 )
         self.GetInputData = channel.unary_unary(
                 '/MasterMapper/GetInputData',
@@ -40,7 +40,7 @@ class MasterMapperServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def InvokeReducer(self, request, context):
+    def Reduce(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -60,10 +60,10 @@ def add_MasterMapperServicer_to_server(servicer, server):
                     request_deserializer=process__pb2.MapPartitionRequest.FromString,
                     response_serializer=process__pb2.MapPartitionResponse.SerializeToString,
             ),
-            'InvokeReducer': grpc.unary_unary_rpc_method_handler(
-                    servicer.InvokeReducer,
-                    request_deserializer=process__pb2.InvokeReducerRequest.FromString,
-                    response_serializer=process__pb2.InvokeReducerResponse.SerializeToString,
+            'Reduce': grpc.unary_unary_rpc_method_handler(
+                    servicer.Reduce,
+                    request_deserializer=process__pb2.ReduceRequest.FromString,
+                    response_serializer=process__pb2.ReduceResponse.SerializeToString,
             ),
             'GetInputData': grpc.unary_unary_rpc_method_handler(
                     servicer.GetInputData,
@@ -98,7 +98,7 @@ class MasterMapper(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def InvokeReducer(request,
+    def Reduce(request,
             target,
             options=(),
             channel_credentials=None,
@@ -108,9 +108,9 @@ class MasterMapper(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/MasterMapper/InvokeReducer',
-            process__pb2.InvokeReducerRequest.SerializeToString,
-            process__pb2.InvokeReducerResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/MasterMapper/Reduce',
+            process__pb2.ReduceRequest.SerializeToString,
+            process__pb2.ReduceResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

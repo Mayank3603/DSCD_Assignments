@@ -6,7 +6,7 @@ import process_pb2_grpc as pb2_grpc
 
 NUM_MAPPERS = 3
 NUM_REDUCERS = 3
-NUM_CENTROIDS = 3
+NUM_CENTROIDS = 5
 NUM_ITERATIONS = 1
 INPUT_FILE = "points.txt"
 mapper_ips = ["localhost:50051", "localhost:50052", "localhost:50053"]

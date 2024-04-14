@@ -31,11 +31,15 @@ class MapPartitionResponse(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class InvokeReducerRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+class ReduceRequest(_message.Message):
+    __slots__ = ("numMappers", "numReducers")
+    NUMMAPPERS_FIELD_NUMBER: _ClassVar[int]
+    NUMREDUCERS_FIELD_NUMBER: _ClassVar[int]
+    numMappers: int
+    numReducers: int
+    def __init__(self, numMappers: _Optional[int] = ..., numReducers: _Optional[int] = ...) -> None: ...
 
-class InvokeReducerResponse(_message.Message):
+class ReduceResponse(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 

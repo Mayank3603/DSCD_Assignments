@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rprocess.proto\"\x1d\n\x05Point\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\"u\n\x13MapPartitionRequest\x12\r\n\x05start\x18\x01 \x01(\x05\x12\x0b\n\x03\x65nd\x18\x02 \x01(\x05\x12\x12\n\nnumMappers\x18\x03 \x01(\x05\x12\x13\n\x0bnumReducers\x18\x04 \x01(\x05\x12\x19\n\tcentroids\x18\x05 \x03(\x0b\x32\x06.Point\"\x16\n\x14MapPartitionResponse\"\x16\n\x14InvokeReducerRequest\"\x17\n\x15InvokeReducerResponse\"\x15\n\x13GetInputDataRequest\"\x16\n\x14GetInputDataResponse2\xc5\x01\n\x0cMasterMapper\x12\x34\n\x03Map\x12\x14.MapPartitionRequest\x1a\x15.MapPartitionResponse\"\x00\x12@\n\rInvokeReducer\x12\x15.InvokeReducerRequest\x1a\x16.InvokeReducerResponse\"\x00\x12=\n\x0cGetInputData\x12\x14.GetInputDataRequest\x1a\x15.GetInputDataResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rprocess.proto\"\x1d\n\x05Point\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\"u\n\x13MapPartitionRequest\x12\r\n\x05start\x18\x01 \x01(\x05\x12\x0b\n\x03\x65nd\x18\x02 \x01(\x05\x12\x12\n\nnumMappers\x18\x03 \x01(\x05\x12\x13\n\x0bnumReducers\x18\x04 \x01(\x05\x12\x19\n\tcentroids\x18\x05 \x03(\x0b\x32\x06.Point\"\x16\n\x14MapPartitionResponse\"8\n\rReduceRequest\x12\x12\n\nnumMappers\x18\x01 \x01(\x05\x12\x13\n\x0bnumReducers\x18\x02 \x01(\x05\"\x10\n\x0eReduceResponse\"\x15\n\x13GetInputDataRequest\"\x16\n\x14GetInputDataResponse2\xb0\x01\n\x0cMasterMapper\x12\x34\n\x03Map\x12\x14.MapPartitionRequest\x1a\x15.MapPartitionResponse\"\x00\x12+\n\x06Reduce\x12\x0e.ReduceRequest\x1a\x0f.ReduceResponse\"\x00\x12=\n\x0cGetInputData\x12\x14.GetInputDataRequest\x1a\x15.GetInputDataResponse\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -27,14 +27,14 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_MAPPARTITIONREQUEST']._serialized_end=165
   _globals['_MAPPARTITIONRESPONSE']._serialized_start=167
   _globals['_MAPPARTITIONRESPONSE']._serialized_end=189
-  _globals['_INVOKEREDUCERREQUEST']._serialized_start=191
-  _globals['_INVOKEREDUCERREQUEST']._serialized_end=213
-  _globals['_INVOKEREDUCERRESPONSE']._serialized_start=215
-  _globals['_INVOKEREDUCERRESPONSE']._serialized_end=238
-  _globals['_GETINPUTDATAREQUEST']._serialized_start=240
-  _globals['_GETINPUTDATAREQUEST']._serialized_end=261
-  _globals['_GETINPUTDATARESPONSE']._serialized_start=263
-  _globals['_GETINPUTDATARESPONSE']._serialized_end=285
-  _globals['_MASTERMAPPER']._serialized_start=288
-  _globals['_MASTERMAPPER']._serialized_end=485
+  _globals['_REDUCEREQUEST']._serialized_start=191
+  _globals['_REDUCEREQUEST']._serialized_end=247
+  _globals['_REDUCERESPONSE']._serialized_start=249
+  _globals['_REDUCERESPONSE']._serialized_end=265
+  _globals['_GETINPUTDATAREQUEST']._serialized_start=267
+  _globals['_GETINPUTDATAREQUEST']._serialized_end=288
+  _globals['_GETINPUTDATARESPONSE']._serialized_start=290
+  _globals['_GETINPUTDATARESPONSE']._serialized_end=312
+  _globals['_MASTERMAPPER']._serialized_start=315
+  _globals['_MASTERMAPPER']._serialized_end=491
 # @@protoc_insertion_point(module_scope)

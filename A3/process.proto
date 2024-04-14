@@ -16,10 +16,12 @@ message MapPartitionRequest {
 message MapPartitionResponse {
 }
 
-message InvokeReducerRequest {
+message ReduceRequest {
+  int32 numMappers=1;
+  int32 numReducers =2;
 }
 
-message InvokeReducerResponse {
+message ReduceResponse {
 }
 
 message GetInputDataRequest {
@@ -30,6 +32,6 @@ message GetInputDataResponse {
 
 service MasterMapper {
   rpc Map (MapPartitionRequest) returns (MapPartitionResponse) {}
-  rpc InvokeReducer (InvokeReducerRequest) returns (InvokeReducerResponse) {}
+  rpc Reduce (ReduceRequest) returns (ReduceResponse) {}
   rpc GetInputData (GetInputDataRequest) returns (GetInputDataResponse) {}
 }
