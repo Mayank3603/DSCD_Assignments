@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rprocess.proto\"\x1d\n\x05Point\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\"u\n\x13MapPartitionRequest\x12\r\n\x05start\x18\x01 \x01(\x05\x12\x0b\n\x03\x65nd\x18\x02 \x01(\x05\x12\x12\n\nnumMappers\x18\x03 \x01(\x05\x12\x13\n\x0bnumReducers\x18\x04 \x01(\x05\x12\x19\n\tcentroids\x18\x05 \x03(\x0b\x32\x06.Point\"&\n\x14MapPartitionResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"8\n\rReduceRequest\x12\x12\n\nnumMappers\x18\x01 \x01(\x05\x12\x13\n\x0bnumReducers\x18\x02 \x01(\x05\" \n\x0eReduceResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"%\n\x0fGetInputRequest\x12\x12\n\nreducer_id\x18\x01 \x01(\x05\"*\n\x10GetInputResponse\x12\x16\n\x0epartition_file\x18\x01 \x01(\t2\xb9\x01\n\x0cMasterMapper\x12\x34\n\x03Map\x12\x14.MapPartitionRequest\x1a\x15.MapPartitionResponse\"\x00\x12\x36\n\x11GetReducerDetails\x12\x0e.ReduceRequest\x1a\x0f.ReduceResponse\"\x00\x12;\n\x12GetInputfromMapper\x12\x10.GetInputRequest\x1a\x11.GetInputResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rprocess.proto\"\x1d\n\x05Point\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\"u\n\x13MapPartitionRequest\x12\r\n\x05start\x18\x01 \x01(\x05\x12\x0b\n\x03\x65nd\x18\x02 \x01(\x05\x12\x12\n\nnumMappers\x18\x03 \x01(\x05\x12\x13\n\x0bnumReducers\x18\x04 \x01(\x05\x12\x19\n\tcentroids\x18\x05 \x03(\x0b\x32\x06.Point\"&\n\x14MapPartitionResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"8\n\rReduceRequest\x12\x12\n\nnumMappers\x18\x01 \x01(\x05\x12\x13\n\x0bnumReducers\x18\x02 \x01(\x05\";\n\x0eReduceResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x19\n\x11reducer_file_path\x18\x02 \x01(\t\"%\n\x0fGetInputRequest\x12\x12\n\nreducer_id\x18\x01 \x01(\x05\"*\n\x10GetInputResponse\x12\x16\n\x0epartition_file\x18\x01 \x01(\t2\xb9\x01\n\x0cMasterMapper\x12\x34\n\x03Map\x12\x14.MapPartitionRequest\x1a\x15.MapPartitionResponse\"\x00\x12\x36\n\x11GetReducerDetails\x12\x0e.ReduceRequest\x1a\x0f.ReduceResponse\"\x00\x12;\n\x12GetInputfromMapper\x12\x10.GetInputRequest\x1a\x11.GetInputResponse\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -30,11 +30,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_REDUCEREQUEST']._serialized_start=207
   _globals['_REDUCEREQUEST']._serialized_end=263
   _globals['_REDUCERESPONSE']._serialized_start=265
-  _globals['_REDUCERESPONSE']._serialized_end=297
-  _globals['_GETINPUTREQUEST']._serialized_start=299
-  _globals['_GETINPUTREQUEST']._serialized_end=336
-  _globals['_GETINPUTRESPONSE']._serialized_start=338
-  _globals['_GETINPUTRESPONSE']._serialized_end=380
-  _globals['_MASTERMAPPER']._serialized_start=383
-  _globals['_MASTERMAPPER']._serialized_end=568
+  _globals['_REDUCERESPONSE']._serialized_end=324
+  _globals['_GETINPUTREQUEST']._serialized_start=326
+  _globals['_GETINPUTREQUEST']._serialized_end=363
+  _globals['_GETINPUTRESPONSE']._serialized_start=365
+  _globals['_GETINPUTRESPONSE']._serialized_end=407
+  _globals['_MASTERMAPPER']._serialized_start=410
+  _globals['_MASTERMAPPER']._serialized_end=595
 # @@protoc_insertion_point(module_scope)

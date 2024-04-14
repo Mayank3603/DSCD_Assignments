@@ -7,7 +7,7 @@ import process_pb2_grpc as pb2_grpc
 NUM_MAPPERS = 1
 NUM_REDUCERS = 3
 NUM_CENTROIDS = 5
-NUM_ITERATIONS = 1
+NUM_ITERATIONS = 3
 INPUT_FILE = "points.txt"
 mapper_ips = ["localhost:50051", "localhost:50052", "localhost:50053"]
 centroids = []
@@ -16,6 +16,7 @@ centroids = []
 class MasterImplementation(pb2_grpc.MasterMapperServicer):
     def __init__(self):
         centroids=[]
+        send_centroids=[]
         points_per_mapper = 0
         num_points = 0
 
@@ -30,8 +31,8 @@ class MasterImplementation(pb2_grpc.MasterMapperServicer):
             centroids.append([x, y])
         print(f"Initial Centroids: {centroids}")
 
-        send_centroids = [pb2.Point(x=i[0], y=i[1]) for i in centroids]
-        self.centroids = send_centroids
+        self.send_centroids = [pb2.Point(x=i[0], y=i[1]) for i in centroids]
+        self.centroids = [(i[0], i[1]) for i in centroids]
         
     def assign_map_tasks(self):
         for i in range(NUM_MAPPERS):
@@ -45,7 +46,7 @@ class MasterImplementation(pb2_grpc.MasterMapperServicer):
             channel = grpc.insecure_channel(mapper_ips[i])
             stub = pb2_grpc.MasterMapperStub(channel)
 
-            request = pb2.MapPartitionRequest(start=start, end= end,numMappers=NUM_MAPPERS,centroids=self.centroids, numReducers=NUM_REDUCERS)
+            request = pb2.MapPartitionRequest(start=start, end= end,numMappers=NUM_MAPPERS,centroids=self.send_centroids, numReducers=NUM_REDUCERS)
             response = stub.Map(request)
             if(response.status == "Success"):
                 print(f"Points processed by mapper {i + 1}")
@@ -55,7 +56,7 @@ class MasterImplementation(pb2_grpc.MasterMapperServicer):
                 #print(f"Error in processing points by mapper {i + 1}")
     
     def assign_reduce_tasks(self):
-        centroids = []
+        centroids = {}
         for i in range(NUM_REDUCERS):
             print(f"Reducer {i + 1} will process partition {i + 1}")
             # try:
@@ -73,24 +74,30 @@ class MasterImplementation(pb2_grpc.MasterMapperServicer):
                 lines = file.readlines()
             for line in lines:
                 centroid_index, x, y = line.strip().split(" ")
-                centroids.append([float(x), float(y)])
-        
-        print(f"Updated Centroids: {centroids}")
-        
+                if centroid_index not in centroids:
+                    centroids[centroid_index] = []
+                centroids[centroid_index]=(float(x), float(y))
 
-    def compile_centroids(self):    
+        updated_centroids = [(0,0) for i in range(NUM_CENTROIDS)]   
+        for centroid_index, points in centroids.items():
+            updated_centroids[int(centroid_index)] = points
+        
+        print(f"Updated Centroids: {updated_centroids}") 
+        return updated_centroids
+
+   
      
 def run_iteration():
     channel = grpc.insecure_channel('localhost:50051')
     stub = pb2_grpc.MasterMapperStub(channel)
     master_impl = MasterImplementation()
 
+    master_impl.divide_input_data()
     for iteration in range(NUM_ITERATIONS):
         print(f"Iteration {iteration + 1}/{NUM_ITERATIONS}")
-        master_impl.divide_input_data()
         master_impl.assign_map_tasks()
-        master_impl.assign_reduce_tasks()
-        master_impl.compile_centroids()
+        master_impl.centroids=master_impl.assign_reduce_tasks()
+        
         print("Centroids updated.")
 
 if __name__ == "__main__":

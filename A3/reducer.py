@@ -25,6 +25,7 @@ class ReducerImplementation(pb2_grpc.MasterMapperServicer):
                 lines = file.readlines()
                 
         self.shuffle_and_sort(lines)
+
         return pb2.ReduceResponse(status="Success", reducer_file_path=f"Reducers/R{self.reducer_id}.txt")
         
 

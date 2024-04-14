@@ -42,10 +42,12 @@ class ReduceRequest(_message.Message):
     def __init__(self, numMappers: _Optional[int] = ..., numReducers: _Optional[int] = ...) -> None: ...
 
 class ReduceResponse(_message.Message):
-    __slots__ = ("status",)
+    __slots__ = ("status", "reducer_file_path")
     STATUS_FIELD_NUMBER: _ClassVar[int]
+    REDUCER_FILE_PATH_FIELD_NUMBER: _ClassVar[int]
     status: str
-    def __init__(self, status: _Optional[str] = ...) -> None: ...
+    reducer_file_path: str
+    def __init__(self, status: _Optional[str] = ..., reducer_file_path: _Optional[str] = ...) -> None: ...
 
 class GetInputRequest(_message.Message):
     __slots__ = ("reducer_id",)
