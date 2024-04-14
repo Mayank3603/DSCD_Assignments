@@ -40,6 +40,7 @@ class MapperImplementation(pb2_grpc.MasterMapperServicer):
 
         print("Points to partition:", to_partition)
         self.Partition(to_partition,num_reducers)
+        return pb2.MapPartitionResponse(status="Success")
 
     def Partition(self, to_partition, num_reducers):
         num_mappers = len(to_partition)
@@ -51,9 +52,9 @@ class MapperImplementation(pb2_grpc.MasterMapperServicer):
             if centroid_index not in partitions:
                 partitions[centroid_index] = []
             partitions[centroid_index].append(point)
+        partitions = dict(sorted(partitions.items(), key=lambda x: x[0]))
         print("Partitions created by mapper", partitions) 
 
-        partitions = dict(sorted(partitions.items(), key=lambda x: x[0]))
         for centroid_index, points in partitions.items():
             reducer_id = (centroid_index % num_reducers) + 1
             print("Sending partition to reducer", reducer_id)
@@ -61,14 +62,16 @@ class MapperImplementation(pb2_grpc.MasterMapperServicer):
                 for point in points:
                     file.write(f"{centroid_index} {point[0]} {point[1]}\n")
 
-        print("Partitioning complete")
-        for reducer_id in range(1, num_reducers + 1):
-            channel = grpc.insecure_channel(f"localhost:5006{reducer_id}")
-            stub = pb2_grpc.MasterMapperStub(channel)
-            response = stub.Reduce(pb2.ReduceRequest(numMappers=num_mappers, numReducers=num_reducers))
+    def GetInputfromMapper(self, request, context):
+        print("Received request from reducer")
+        reducer_id = request.reducer_id
+        print("Reducer ID:", reducer_id)
+        response = pb2.GetInputResponse(partition_file=f"Mappers/M{mapper_id}/partition_{reducer_id}.txt")
+        return response
 
 
 if __name__ == "__main__":
+    
     mapper_id = int(input("Enter mapper id: "))
     mapper_ips = {1: "localhost:50051", 2: "localhost:50052", 3: "localhost:50053"}
     port = int(mapper_ips[mapper_id].split(":")[1])

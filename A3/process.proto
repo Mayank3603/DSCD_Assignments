@@ -14,6 +14,7 @@ message MapPartitionRequest {
 
 
 message MapPartitionResponse {
+  string status=1;
 }
 
 message ReduceRequest {
@@ -22,16 +23,20 @@ message ReduceRequest {
 }
 
 message ReduceResponse {
+  string status=1;
+  string reducer_file_path=2;
 }
 
-message GetInputDataRequest {
+message GetInputRequest {
+  int32 reducer_id =1;
 }
 
-message GetInputDataResponse {
+message GetInputResponse {
+  string partition_file =1;
 }
 
 service MasterMapper {
   rpc Map (MapPartitionRequest) returns (MapPartitionResponse) {}
-  rpc Reduce (ReduceRequest) returns (ReduceResponse) {}
-  rpc GetInputData (GetInputDataRequest) returns (GetInputDataResponse) {}
+  rpc GetReducerDetails (ReduceRequest) returns (ReduceResponse) {}
+  rpc GetInputfromMapper (GetInputRequest) returns (GetInputResponse) {}
 }

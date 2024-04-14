@@ -28,8 +28,10 @@ class MapPartitionRequest(_message.Message):
     def __init__(self, start: _Optional[int] = ..., end: _Optional[int] = ..., numMappers: _Optional[int] = ..., numReducers: _Optional[int] = ..., centroids: _Optional[_Iterable[_Union[Point, _Mapping]]] = ...) -> None: ...
 
 class MapPartitionResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("status",)
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    status: str
+    def __init__(self, status: _Optional[str] = ...) -> None: ...
 
 class ReduceRequest(_message.Message):
     __slots__ = ("numMappers", "numReducers")
@@ -40,13 +42,19 @@ class ReduceRequest(_message.Message):
     def __init__(self, numMappers: _Optional[int] = ..., numReducers: _Optional[int] = ...) -> None: ...
 
 class ReduceResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("status",)
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    status: str
+    def __init__(self, status: _Optional[str] = ...) -> None: ...
 
-class GetInputDataRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+class GetInputRequest(_message.Message):
+    __slots__ = ("reducer_id",)
+    REDUCER_ID_FIELD_NUMBER: _ClassVar[int]
+    reducer_id: int
+    def __init__(self, reducer_id: _Optional[int] = ...) -> None: ...
 
-class GetInputDataResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+class GetInputResponse(_message.Message):
+    __slots__ = ("partition_file",)
+    PARTITION_FILE_FIELD_NUMBER: _ClassVar[int]
+    partition_file: str
+    def __init__(self, partition_file: _Optional[str] = ...) -> None: ...

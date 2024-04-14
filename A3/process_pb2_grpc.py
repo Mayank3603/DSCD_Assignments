@@ -19,15 +19,15 @@ class MasterMapperStub(object):
                 request_serializer=process__pb2.MapPartitionRequest.SerializeToString,
                 response_deserializer=process__pb2.MapPartitionResponse.FromString,
                 )
-        self.Reduce = channel.unary_unary(
-                '/MasterMapper/Reduce',
+        self.GetReducerDetails = channel.unary_unary(
+                '/MasterMapper/GetReducerDetails',
                 request_serializer=process__pb2.ReduceRequest.SerializeToString,
                 response_deserializer=process__pb2.ReduceResponse.FromString,
                 )
-        self.GetInputData = channel.unary_unary(
-                '/MasterMapper/GetInputData',
-                request_serializer=process__pb2.GetInputDataRequest.SerializeToString,
-                response_deserializer=process__pb2.GetInputDataResponse.FromString,
+        self.GetInputfromMapper = channel.unary_unary(
+                '/MasterMapper/GetInputfromMapper',
+                request_serializer=process__pb2.GetInputRequest.SerializeToString,
+                response_deserializer=process__pb2.GetInputResponse.FromString,
                 )
 
 
@@ -40,13 +40,13 @@ class MasterMapperServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Reduce(self, request, context):
+    def GetReducerDetails(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetInputData(self, request, context):
+    def GetInputfromMapper(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -60,15 +60,15 @@ def add_MasterMapperServicer_to_server(servicer, server):
                     request_deserializer=process__pb2.MapPartitionRequest.FromString,
                     response_serializer=process__pb2.MapPartitionResponse.SerializeToString,
             ),
-            'Reduce': grpc.unary_unary_rpc_method_handler(
-                    servicer.Reduce,
+            'GetReducerDetails': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetReducerDetails,
                     request_deserializer=process__pb2.ReduceRequest.FromString,
                     response_serializer=process__pb2.ReduceResponse.SerializeToString,
             ),
-            'GetInputData': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetInputData,
-                    request_deserializer=process__pb2.GetInputDataRequest.FromString,
-                    response_serializer=process__pb2.GetInputDataResponse.SerializeToString,
+            'GetInputfromMapper': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetInputfromMapper,
+                    request_deserializer=process__pb2.GetInputRequest.FromString,
+                    response_serializer=process__pb2.GetInputResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -98,7 +98,7 @@ class MasterMapper(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def Reduce(request,
+    def GetReducerDetails(request,
             target,
             options=(),
             channel_credentials=None,
@@ -108,14 +108,14 @@ class MasterMapper(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/MasterMapper/Reduce',
+        return grpc.experimental.unary_unary(request, target, '/MasterMapper/GetReducerDetails',
             process__pb2.ReduceRequest.SerializeToString,
             process__pb2.ReduceResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetInputData(request,
+    def GetInputfromMapper(request,
             target,
             options=(),
             channel_credentials=None,
@@ -125,8 +125,8 @@ class MasterMapper(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/MasterMapper/GetInputData',
-            process__pb2.GetInputDataRequest.SerializeToString,
-            process__pb2.GetInputDataResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/MasterMapper/GetInputfromMapper',
+            process__pb2.GetInputRequest.SerializeToString,
+            process__pb2.GetInputResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
