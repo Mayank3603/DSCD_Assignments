@@ -1,0 +1,30 @@
+Initial Centroids: [(8.3, 2.9), (0.0, 7.1)]
+Iteration 1
+Request sent to mapper 2
+Request sent to mapper 1
+SUCCESS: Response received from mapper 2
+SUCCESS: Response received from mapper 1
+Request sent to mapper 3
+SUCCESS: Response received from mapper 3
+Request sent to reducer 3
+SUCCESS: Response received from reducer 3 for partition 3
+Request sent to reducer 2
+SUCCESS: Response received from reducer 2 for partition 2
+Request sent to reducer 1
+SUCCESS: Response received from reducer 1 for partition 1
+Updated Centroids: [(9.54737, 1.04737), (-0.175, 8.14167)]
+Iteration 2
+Request sent to mapper 1
+SUCCESS: Response received from mapper 1
+Request sent to mapper 2
+Request sent to mapper 3
+SUCCESS: Response received from mapper 2
+SUCCESS: Response received from mapper 3
+Request sent to reducer 3
+SUCCESS: Response received from reducer 3 for partition 3
+Request sent to reducer 2
+SUCCESS: Response received from reducer 2 for partition 2
+Request sent to reducer 1
+SUCCESS: Response received from reducer 1 for partition 1
+Converged
+Updated Centroids: [(9.54737, 1.04737), (-0.175, 8.14167)]

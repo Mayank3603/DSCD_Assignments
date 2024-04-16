@@ -34,12 +34,14 @@ class MapPartitionResponse(_message.Message):
     def __init__(self, status: _Optional[str] = ...) -> None: ...
 
 class ReduceRequest(_message.Message):
-    __slots__ = ("numMappers", "numReducers")
+    __slots__ = ("numMappers", "numReducers", "partition_id")
     NUMMAPPERS_FIELD_NUMBER: _ClassVar[int]
     NUMREDUCERS_FIELD_NUMBER: _ClassVar[int]
+    PARTITION_ID_FIELD_NUMBER: _ClassVar[int]
     numMappers: int
     numReducers: int
-    def __init__(self, numMappers: _Optional[int] = ..., numReducers: _Optional[int] = ...) -> None: ...
+    partition_id: int
+    def __init__(self, numMappers: _Optional[int] = ..., numReducers: _Optional[int] = ..., partition_id: _Optional[int] = ...) -> None: ...
 
 class ReduceResponse(_message.Message):
     __slots__ = ("status", "data")

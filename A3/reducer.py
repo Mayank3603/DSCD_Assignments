@@ -15,14 +15,21 @@ class ReducerImplementation(pb2_grpc.MasterMapperServicer):
         print("Reducer ID:", self.reducer_id)
 
         num_mappers = request.numMappers
+        partition_id = request.partition_id
         lines=[]
         for i in range(num_mappers):
-            channel = grpc.insecure_channel(f"localhost:5005{i+1}")
-            stub = pb2_grpc.MasterMapperStub(channel)
-            request = pb2.GetInputRequest(reducer_id=self.reducer_id)
-            response = stub.GetInputfromMapper(request)
-            lines.extend(response.data.split("\n"))
-        
+            try:
+                channel = grpc.insecure_channel(f"localhost:5005{i+1}")
+                stub = pb2_grpc.MasterMapperStub(channel)
+                request = pb2.GetInputRequest(reducer_id=partition_id)
+                response = stub.GetInputfromMapper(request)
+                lines.extend(response.data.split("\n"))
+            except grpc._channel._InactiveRpcError:
+                print(f"Error in processing points by mapper {i + 1}")
+
+            except Exception as e:
+                print(f"Error in processing points by mapper {i + 1}")
+
         # print("Data received from mappers:", lines)
         self.shuffle_and_sort(lines)
         data=""
@@ -57,7 +64,6 @@ class ReducerImplementation(pb2_grpc.MasterMapperServicer):
         print("Shuffled and sorted data:", self.dict_centroid)
 
     def Reduce(self):
-
         updated_centroids = {}
         for centroid_index, points in self.dict_centroid.items():
             if not points:
@@ -66,8 +72,8 @@ class ReducerImplementation(pb2_grpc.MasterMapperServicer):
             sum_x = sum(float(point[0]) for point in points)
             sum_y = sum(float(point[1]) for point in points)
             num_points = len(points)
-            new_centroid_x = round((sum_x / num_points),1)
-            new_centroid_y = round((sum_y / num_points),1)
+            new_centroid_x = round((sum_x / num_points),5)
+            new_centroid_y = round((sum_y / num_points),5)
             
             updated_centroids[centroid_index] = [new_centroid_x, new_centroid_y]
     
@@ -79,12 +85,6 @@ class ReducerImplementation(pb2_grpc.MasterMapperServicer):
         with open(f"Reducers/R{self.reducer_id}.txt", 'w') as file:
             for centroid_index, centroid in updated_centroids.items():
                 file.write(f"{centroid_index} {centroid[0]} {centroid[1]}\n")   
-
-
-
-        
-
-
 
 
 if __name__ == "__main__":

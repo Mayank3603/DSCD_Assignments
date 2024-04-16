@@ -20,7 +20,7 @@ class MapperImplementation(pb2_grpc.MasterMapperServicer):
         end = request.end
 
         points = []
-        with open(r'Input/points2.txt', 'r') as file:
+        with open(r'Input/points.txt', 'r') as file:
             lines = file.readlines()[start:end]
             for line in lines:
                 x, y = map(float, line.strip().split(','))

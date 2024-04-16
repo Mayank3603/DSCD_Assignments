@@ -20,6 +20,7 @@ message MapPartitionResponse {
 message ReduceRequest {
   int32 numMappers=1;
   int32 numReducers =2;
+  int32 partition_id =3;
 }
 
 message ReduceResponse {
