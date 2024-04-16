@@ -20,7 +20,7 @@ class MapperImplementation(pb2_grpc.MasterMapperServicer):
         end = request.end
 
         points = []
-        with open('points.txt', 'r') as file:
+        with open(r'Input/points2.txt', 'r') as file:
             lines = file.readlines()[start:end]
             for line in lines:
                 x, y = map(float, line.strip().split(','))
@@ -66,7 +66,11 @@ class MapperImplementation(pb2_grpc.MasterMapperServicer):
         print("Received request from reducer")
         reducer_id = request.reducer_id
         print("Reducer ID:", reducer_id)
-        response = pb2.GetInputResponse(partition_file=f"Mappers/M{mapper_id}/partition_{reducer_id}.txt")
+        partition_file = f"Mappers/M{mapper_id}/partition_{reducer_id}.txt"
+        data=""
+        for line in open(partition_file, 'r'):
+            data += line
+        response = pb2.GetInputResponse(data=data)
         return response
 
 

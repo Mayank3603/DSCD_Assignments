@@ -13,3 +13,6 @@ for folder in os.listdir("Mappers"):
 for file in os.listdir("Reducers"):
     with open(f"Reducers/{file}", "w") as f:
         f.write("")
+
+with open("dump.txt", "w") as f:
+    f.write("")

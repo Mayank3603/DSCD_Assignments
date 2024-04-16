@@ -24,7 +24,7 @@ message ReduceRequest {
 
 message ReduceResponse {
   string status=1;
-  string reducer_file_path=2;
+  string data=2;
 }
 
 message GetInputRequest {
@@ -32,7 +32,7 @@ message GetInputRequest {
 }
 
 message GetInputResponse {
-  string partition_file =1;
+  string data =1;
 }
 
 service MasterMapper {

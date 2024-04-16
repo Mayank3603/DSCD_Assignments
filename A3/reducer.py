@@ -15,37 +15,46 @@ class ReducerImplementation(pb2_grpc.MasterMapperServicer):
         print("Reducer ID:", self.reducer_id)
 
         num_mappers = request.numMappers
+        lines=[]
         for i in range(num_mappers):
             channel = grpc.insecure_channel(f"localhost:5005{i+1}")
             stub = pb2_grpc.MasterMapperStub(channel)
             request = pb2.GetInputRequest(reducer_id=self.reducer_id)
             response = stub.GetInputfromMapper(request)
-            print(f"File path received from mapper {i+1}: {response.partition_file}")
-            with open(response.partition_file, 'r') as file:
-                lines = file.readlines()
-                
+            lines.extend(response.data.split("\n"))
+        
+        # print("Data received from mappers:", lines)
         self.shuffle_and_sort(lines)
-
-        return pb2.ReduceResponse(status="Success", reducer_file_path=f"Reducers/R{self.reducer_id}.txt")
+        data=""
+        for line in open(f"Reducers/R{reducer_id}.txt", 'r'):
+            data += line
+        return pb2.ReduceResponse(status="Success", data=data)
         
 
     def shuffle_and_sort(self, lines):
         self.dict_centroid = {}
-        print(lines)
+        lines=lines[:-1]
+        print("Shuffled and sorted data:", self.dict_centroid)
+        # print(lines)
         for line in lines:
             print(line)
-            line=line[:-1]
+            if line == "":
+                continue
             centroid_index,point_x,point_y = line.strip().split(" ")
             print(centroid_index,point_x,point_y)
+
             if(centroid_index not in self.dict_centroid):
                 self.dict_centroid[centroid_index]=[]
             
             self.dict_centroid[centroid_index].append([point_x,point_y])
 
-        self.dict_centroid = dict(sorted(self.dict_centroid.items(), key=lambda x: x[0]))
-
         print("Shuffled and sorted data:", self.dict_centroid)
+        for centroid_index, points in self.dict_centroid.items():
+            points.sort(key=lambda x: (float(x[0]), float(x[1])))
+        dict_centroid = dict(sorted(self.dict_centroid.items(), key=lambda x: x[0]))
+       
         self.Reduce()
+        print("Shuffled and sorted data:", self.dict_centroid)
 
     def Reduce(self):
 
