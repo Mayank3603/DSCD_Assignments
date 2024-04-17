@@ -3,6 +3,7 @@ import threading
 from concurrent import futures
 import process_pb2 as pb2
 import process_pb2_grpc as pb2_grpc
+import random
 
 class MapperImplementation(pb2_grpc.MasterMapperServicer):
 
@@ -24,7 +25,7 @@ class MapperImplementation(pb2_grpc.MasterMapperServicer):
             lines = file.readlines()[start:end]
             for line in lines:
                 x, y = map(float, line.strip().split(','))
-                points.append(pb2.Point(x=round(x, 1), y=round(y, 1)))      
+                points.append(pb2.Point(x=round(x, 20), y=round(y, 20)))      
         print(len(points), "points processed by mapper")
         to_partition = [] 
         for point in points:
@@ -36,10 +37,14 @@ class MapperImplementation(pb2_grpc.MasterMapperServicer):
                     min_distance = distance
                     closest_centroid_index = centroid_index
             print(f"Point {point} is closest to centroid {closest_centroid_index}")
-            to_partition.append((closest_centroid_index, (round(point.x, 1), round(point.y, 1))))  
+            to_partition.append((closest_centroid_index, (round(point.x, 20), round(point.y, 20))))  
 
         print("Points to partition:", to_partition)
         self.Partition(to_partition,num_reducers)
+
+        # prob=random.random()
+        # if prob<0.5:
+        #     return pb2.MapPartitionResponse(status="Failure")
         return pb2.MapPartitionResponse(status="Success")
 
     def Partition(self, to_partition, num_reducers):

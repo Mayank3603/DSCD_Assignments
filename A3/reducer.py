@@ -2,6 +2,7 @@ import grpc
 import process_pb2 as pb2
 import process_pb2_grpc as pb2_grpc
 from concurrent import futures
+import random
 
 class ReducerImplementation(pb2_grpc.MasterMapperServicer):
     def __init__(self, reducer_id):
@@ -35,6 +36,9 @@ class ReducerImplementation(pb2_grpc.MasterMapperServicer):
         data=""
         for line in open(f"Reducers/R{reducer_id}.txt", 'r'):
             data += line
+        # prob=random.random()
+        # if prob<0.5:
+        #     return pb2.MapPartitionResponse(status="Failure")
         return pb2.ReduceResponse(status="Success", data=data)
         
 
@@ -72,8 +76,8 @@ class ReducerImplementation(pb2_grpc.MasterMapperServicer):
             sum_x = sum(float(point[0]) for point in points)
             sum_y = sum(float(point[1]) for point in points)
             num_points = len(points)
-            new_centroid_x = round((sum_x / num_points),5)
-            new_centroid_y = round((sum_y / num_points),5)
+            new_centroid_x = round((sum_x / num_points),20)
+            new_centroid_y = round((sum_y / num_points),20)
             
             updated_centroids[centroid_index] = [new_centroid_x, new_centroid_y]
     

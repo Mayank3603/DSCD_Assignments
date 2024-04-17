@@ -5,8 +5,6 @@ import process_pb2 as pb2
 import process_pb2_grpc as pb2_grpc
 import threading
 
-
-
 class MasterImplementation(pb2_grpc.MasterMapperServicer):
     def __init__(self,num_mappers,num_reducers,num_centroids,num_iterations,input_file,mapper_ips):
         self.centroids=[]
@@ -34,154 +32,105 @@ class MasterImplementation(pb2_grpc.MasterMapperServicer):
         
         self.centroids = [(i[0], i[1]) for i in self.centroids]
         
-    def assign_map_tasks(self):
-            def map_task(i):
-                start = i * self.points_per_mapper
-                end = (i + 1) * self.points_per_mapper
-                if i == self.num_mappers - 1:
-                    end = self.num_points
-                    
-                print(f"Mapper {i + 1} will process points {start + 1} to {end}")
-                self.send_centroids = [pb2.Point(x=i[0], y=i[1]) for i in self.centroids]
-                try:
-                    channel = grpc.insecure_channel(self.mapper_ips[i])
-                    stub = pb2_grpc.MasterMapperStub(channel)
-                    request = pb2.MapPartitionRequest(start=start, end=end, numMappers=self.num_mappers, centroids=self.send_centroids, numReducers=self.num_reducers)
-                    response = stub.Map(request,timeout=0.8)
-                    with open("dump.txt", "a") as f:
-                        f.write("Request sent to mapper " + str(i + 1) + "\n")
-                    if response.status == "Success":
-                        print(f"Points processed by mapper {i + 1}")
-                        with open("dump.txt", "a") as f:
-                            f.write("SUCCESS: Response received from mapper " + str(i + 1) + "\n")
-                    else:
-                        print(f"Error in processing points by mapper {i + 1}")
-                        with open("dump.txt", "a") as f:
-                            f.write("FAILED: Response received from mapper " + str(i + 1) + "\n")
-                except grpc._channel._InactiveRpcError:
-                    print(f"Error in processing points by mapper {i + 1}")
-                    with open("dump.txt", "a") as f:
-                        f.write("FAILED: Response received from mapper " + str(i + 1) + "\n")
-                    retries = 0
-                    try_index = i
-                    while retries < self.num_mappers:
-                        try:
-                            try_index = (try_index + 1) % self.num_mappers
-                            channel = grpc.insecure_channel(self.mapper_ips[try_index])
-                            stub = pb2_grpc.MasterMapperStub(channel)
-                            print(f"Trying mapper {try_index + 1}")
-                            request = pb2.MapPartitionRequest(start=start, end=end, numMappers=self.num_mappers, centroids=self.send_centroids, numReducers=self.num_reducers)
-                            response = stub.Map(request,timeout=0.8)
-                            with open("dump.txt", "a") as f:
-                                f.write("Request sent to mapper " + str(i + 1) + "\n")
-                            if response.status == "Success":
-                                print(f"Points processed by mapper {i + 1}")
-                                with open("dump.txt", "a") as f:
-                                    f.write("SUCCESS: Response received from mapper " + str(i + 1) + "\n")
-                            else:
-                                print(f"Error in processing points by mapper {i + 1}")
-                                with open("dump.txt", "a") as f:
-                                    f.write("FAILED: Response received from mapper " + str(i + 1) + "\n")
-                                
-                            break
-                        except grpc._channel._InactiveRpcError:
-                            retries += 1
-                            with open("dump.txt", "a") as f:
-                                f.write("FAILED: Response received from mapper " + str(i + 1) + "\n")
-                            print(f"Error in processing points by mapper {try_index + 1}")
-                            time.sleep(0.5)
 
-                except Exception as e:
+
+    def assign_map_tasks(self):
+        def map_task(i, retries):
+            start = i * self.points_per_mapper
+            end = (i + 1) * self.points_per_mapper
+            if i == self.num_mappers - 1:
+                end = self.num_points
+                
+            print(f"Mapper {i + 1} will process points {start + 1} to {end}")
+            self.send_centroids = [pb2.Point(x=i[0], y=i[1]) for i in self.centroids]
+            try:
+                channel = grpc.insecure_channel(self.mapper_ips[i])
+                stub = pb2_grpc.MasterMapperStub(channel)
+                request = pb2.MapPartitionRequest(start=start, end=end, numMappers=self.num_mappers, centroids=self.send_centroids, numReducers=self.num_reducers)
+                response = stub.Map(request, timeout=0.8)
+                with open("dump.txt", "a") as f:
+                    f.write("Request sent to mapper " + str(i + 1) + "\n")
+                if response.status == "Success":
+                    print(f"Points processed by mapper {i + 1}")
+                    with open("dump.txt", "a") as f:
+                        f.write("SUCCESS: Response received from mapper " + str(i + 1) + "\n")
+                else:
+                    print(f"Error in processing points by mapper {i + 1}")
                     with open("dump.txt", "a") as f:
                         f.write("FAILED: Response received from mapper " + str(i + 1) + "\n")
-                    print(f"Error in processing points by mapper {i + 1}")
-                
-                
-            threads = []
-            for i in range(self.num_mappers):
-                thread = threading.Thread(target=map_task, args=(i,))
-                threads.append(thread)
-                thread.start()
-                
-            for thread in threads:
-                thread.join()
+                    if retries < self.num_mappers:
+                        map_task((i + 1) % self.num_mappers, retries + 1)  # Retry with next mapper
+            except grpc._channel._InactiveRpcError:
+                print(f"Error in processing points by mapper {i + 1}")
+                with open("dump.txt", "a") as f:
+                    f.write("FAILED: Response received from mapper " + str(i + 1) + "\n")
+                if retries < (self.num_reducers)*5:
+                    map_task((i + 1) % self.num_mappers, retries + 1)  # Retry with next mapper
+            except Exception as e:
+                with open("dump.txt", "a") as f:
+                    f.write("FAILED: Response received from mapper " + str(i + 1) + "\n")
+                print(f"Error in processing points by mapper {i + 1}")
+                if retries < (self.num_reducers)*5:
+                    map_task((i + 1) % self.num_mappers, retries + 1)  # Retry with next mapper
+
+        threads = []
+        for i in range(self.num_mappers):
+            thread = threading.Thread(target=map_task, args=(i, 0))
+            threads.append(thread)
+            thread.start()
+            
+        for thread in threads:
+            thread.join()
+
 
     def assign_reduce_tasks(self):
-        def reduce_task(i):
+        def reduce_task(i, retries):
             print(f"Reducer {i + 1} will process partition {i + 1}")
             try:
                 channel = grpc.insecure_channel(f"localhost:5006{i + 1}")
                 stub = pb2_grpc.MasterMapperStub(channel)
-                request = pb2.ReduceRequest(numReducers=self.num_reducers, numMappers=self.num_mappers,partition_id=i+1)
-                response = stub.GetReducerDetails(request,timeout=10)
+                request = pb2.ReduceRequest(numReducers=self.num_reducers, numMappers=self.num_mappers, partition_id=i+1)
+                response = stub.GetReducerDetails(request, timeout=4)
                 with open("dump.txt", "a") as f:
                     f.write("Request sent to reducer " + str(i + 1) + "\n")
                 if response.status == "Success":
                     print(f"Partition processed by reducer {i + 1}")
                     with open("dump.txt", "a") as f:
-                        f.write("SUCCESS: Response received from reducer " + str(i + 1) + " for partition "+str(i+1)+"\n")
+                        f.write("SUCCESS: Response received from reducer " + str(i + 1)+"\n")
                 else:
                     print(f"Error in processing partition by reducer {i + 1}")
                     with open("dump.txt", "a") as f:
-                        f.write("FAILED: Response received from reducer " + str(i + 1) + " for partition "+str(i+1)+"\n")
+                        f.write("FAILED: Response received from reducer " + str(i + 1)+"\n")
+                    if retries < self.num_reducers:
+                        reduce_task((i + 1) % self.num_mappers, retries + 1)
                 
                 lines=response.data.split("\n")
                 lines=lines[:-1]
-                # print(lines)
                 for line in lines:
                     if line == "":
                         continue
-                    print(line)
                     centroid_index, x, y = line.strip().split(" ")
-                    print(centroid_index, x, y)
                     centroids[int(centroid_index)] = (float(x), float(y))
-                print(centroids)
 
             except grpc._channel._InactiveRpcError:
                 print(f"Error in processing points by reducer {i + 1}")
-                retries = 0
-                try_index = i
-                while retries < self.num_reducers:
-                    try:
-                        try_index = (try_index + 1) % self.num_mappers
-                        channel = grpc.insecure_channel(f"localhost:5006{try_index + 1}")
-                        stub = pb2_grpc.MasterMapperStub(channel)
-                        print(f"Trying reducer {try_index + 1}")
-                        request = pb2.ReduceRequest(numReducers=self.num_reducers, numMappers=self.num_mappers, partition_id=i+1)
-                        response = stub.GetReducerDetails(request,timeout=10)
-                        with open("dump.txt", "a") as f:
-                            f.write("Request sent to reducer " + str(i + 1) + " for partition "+str(i+1)+"\n")
-                        if response.status == "Success":
-                            print(f"Points processed by reducer {try_index + 1}")
-                            with open("dump.txt", "a") as f:
-                                f.write("SUCCESS: Response received from reducer " + str(i + 1) + " for partition "+str(i+1)+"\n")
-                        else:
-                            print(f"Error in processing points by reducer {try_index + 1}")
-                            with open("dump.txt", "a") as f:
-                                f.write("FAILED: Response received from reducer " + str(i + 1) + " for partition "+str(i+1)+"\n")
-                        lines=response.data.split("\n")
-                        lines=lines[:-1]
-                        print(lines)
-                        for line in lines:
-                            if line == "":
-                                continue
-                            centroid_index, x, y = line.strip().split(" ")
-                            centroids[int(centroid_index)] = (float(x), float(y))
-                        break
-                    except grpc._channel._InactiveRpcError:
-                        retries += 1
-                        with open("dump.txt", "a") as f:
-                            f.write("FAILED: Response received from reducer " + str(i + 1) + " for partition "+str(i+1)+"\n")
-                        print(f"Error in processing points by reducer {try_index + 1}")
-                        time.sleep(0.5)
-
+                with open("dump.txt", "a") as f:
+                    f.write("FAILED: Response received from reducer " + str(i + 1) + "\n")
+                if retries < (self.num_reducers)*5:
+                    reduce_task((i + 1) % self.num_mappers, retries + 1)  # Retrying with next reducer
             except Exception as e:
                 print(f"Error in processing partition by reducer {i + 1}")
+                with open("dump.txt", "a") as f:
+                    f.write("FAILED: Response received from reducer " + str(i + 1) + "\n")
+                if retries < (self.num_reducers)*5:
+                    reduce_task((i + 1) % self.num_mappers, retries + 1)  # Retrying with next reducer
+
+
                 
         centroids = {}
         threads = []
         for i in range(self.num_reducers):
-            thread = threading.Thread(target=reduce_task, args=(i,))
+            thread = threading.Thread(target=reduce_task, args=(i,0))
             threads.append(thread)
             thread.start()
         
@@ -233,6 +182,11 @@ def run_iteration():
         print("Centroids updated.")
         with open ("dump.txt", "a") as f:
             f.write("Updated Centroids: " + str(master_impl.centroids) + "\n")
+     
+        for i in range(master_impl.num_mappers):
+            for j in range(master_impl.num_reducers):
+                with open(f"Mappers/M{i+1}/partition_{j+1}.txt", "w") as f:
+                    f.write("")
 
     with open ("centroids.txt", "w") as f:
         for i in master_impl.centroids:
